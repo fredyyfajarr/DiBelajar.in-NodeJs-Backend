@@ -1,4 +1,5 @@
 import express from 'express';
+import { validate } from '../Middleware/validate.js';
 import {
   getAllUsers,
   getUserById,
@@ -6,14 +7,11 @@ import {
   updateUser,
   deleteUser,
 } from '../Controllers/UserController.js';
+import { getSubmissionsByUserId } from '../Controllers/AssignmentSubmissionController.js';
+import { getTestResultsByUserId } from '../Controllers/TestResultController.js';
+import { getPostsByUserId } from '../Controllers/ForumPostController.js';
 
-import {
-  findEnrollmentByUserId,
-  createEnrollment,
-  removeEnrollment,
-} from '../Controllers/EnrollmentController.js';
-
-import { validate } from '../Middleware/validate.js';
+import enrollmenrUserRouter from './enrollmentUserRouter.js';
 import {
   createUserSchema,
   updateUserSchema,
@@ -29,10 +27,10 @@ router
   .put(validate(updateUserSchema), updateUser)
   .delete(deleteUser);
 
-router
-  .route('/:userId/enrollments')
-  .get(findEnrollmentByUserId)
-  .post(createEnrollment);
-router.route('/:userId/enrollments/:courseId').delete(removeEnrollment);
+router.use('/:userId/enrollments', enrollmenrUserRouter); // rute induk
+
+router.route('/:userId/assignments').get(getSubmissionsByUserId);
+router.route('/:userId/tests').get(getTestResultsByUserId);
+router.route('/:userId/forum/posts').get(getPostsByUserId);
 
 export default router;

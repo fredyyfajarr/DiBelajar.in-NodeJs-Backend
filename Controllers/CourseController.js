@@ -17,9 +17,6 @@ export const getCourseById = async (req, res, next) => {
     }
     res.json(course);
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'Course ID not valid.' });
-    }
     next(error);
   }
 };
