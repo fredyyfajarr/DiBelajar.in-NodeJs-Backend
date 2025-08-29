@@ -1,5 +1,6 @@
 import express from 'express';
 import connectDB from './config/db.js';
+import errorHandler from './Middleware/errorHandler.js';
 
 // Routers
 import userRouter from './Routes/userRouter.js';
@@ -21,13 +22,7 @@ app.use('/api/materials', materialRouter);
 app.use('/api/enrollments', enrollmentRouter);
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  if (err.message.includes('Validation failed')) {
-    return res.status(400).json({ error: err.message });
-  }
-  res.status(500).send('Something went wrong!');
-});
+app.use(errorHandler);
 
 connectDB();
 app.listen(PORT, () => {

@@ -1,23 +1,21 @@
 import * as enrollmentService from '../Services/enrollmentService.js';
 
-export const findAllEnrollments = async (req, res) => {
+export const findAllEnrollments = async (req, res, next) => {
   try {
     const enrollments = await enrollmentService.findAllEnrollments();
     res.status(200).json(enrollments);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const createEnrollment = async (req, res) => {
+export const createEnrollment = async (req, res, next) => {
   const { userId } = req.params;
   const { courseId } = req.body;
-  if (!userId || !courseId) {
-    return res.status(400).json({ error: 'Missing userId or courseId' });
-  }
+
+  if (!userId || !courseId)
+    return res.status(400).json({ error: 'User ID and Course ID required' });
+
   try {
     const newEnrollment = await enrollmentService.createEnrollment(
       userId,
@@ -25,14 +23,11 @@ export const createEnrollment = async (req, res) => {
     );
     res.status(201).json(newEnrollment);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const findEnrollmentByUserId = async (req, res) => {
+export const findEnrollmentByUserId = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const enrollments = await enrollmentService.findEnrollmentByUserId(userId);
@@ -43,14 +38,11 @@ export const findEnrollmentByUserId = async (req, res) => {
     }
     res.status(200).json(enrollments);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const findEnrollmentByCourseId = async (req, res) => {
+export const findEnrollmentByCourseId = async (req, res, next) => {
   try {
     const { courseId } = req.params;
     const enrollments = await enrollmentService.findEnrollmentByCourseId(
@@ -63,14 +55,11 @@ export const findEnrollmentByCourseId = async (req, res) => {
     }
     res.status(200).json(enrollments);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const removeEnrollment = async (req, res) => {
+export const removeEnrollment = async (req, res, next) => {
   try {
     const { userId, courseId } = req.params;
     const deletedEnrollment = await enrollmentService.removeEnrollment(
@@ -85,9 +74,6 @@ export const removeEnrollment = async (req, res) => {
       data: deletedEnrollment,
     });
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };

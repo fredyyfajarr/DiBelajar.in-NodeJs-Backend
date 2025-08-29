@@ -5,7 +5,6 @@ export const findAllEnrollments = async () => {
     const enrollments = await Enrollment.find();
     return enrollments;
   } catch (error) {
-    console.error('Error fetching enrollments:', error);
     throw error;
   }
 };
@@ -14,7 +13,6 @@ export const findEnrollmentByUserId = async (userId) => {
     const enrollments = await Enrollment.find({ userId: userId });
     return enrollments;
   } catch (error) {
-    console.error('Error fetching enrollments:', error);
     throw error;
   }
 };
@@ -24,26 +22,24 @@ export const findEnrollmentByCourseId = async (courseId) => {
     const enrollments = await Enrollment.find({ courseId: courseId });
     return enrollments;
   } catch (error) {
-    console.error('Error fetching enrollments:', error);
     throw error;
   }
 };
 
 export const createEnrollment = async (userId, courseId) => {
-  const existingEnrollment = await Enrollment.findOne({
-    userId: userId,
-    courseId: courseId,
-  });
-
-  if (existingEnrollment) {
-    throw new Error('User already enrolled in this course');
-  }
-
   try {
+    const existingEnrollment = await Enrollment.findOne({
+      userId: userId,
+      courseId: courseId,
+    });
+
+    if (existingEnrollment) {
+      throw new Error('User already enrolled in this course');
+    }
+
     const newEnrollment = await Enrollment.create({ userId, courseId });
     return newEnrollment;
   } catch (error) {
-    console.error('Error creating enrollment:', error);
     throw error;
   }
 };
@@ -56,7 +52,6 @@ export const removeEnrollment = async (userId, courseId) => {
     });
     return deletedEnrollment;
   } catch (error) {
-    console.error('Error deleting enrollment:', error);
     throw error;
   }
 };

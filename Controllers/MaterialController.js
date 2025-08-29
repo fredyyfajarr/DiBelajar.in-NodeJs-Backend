@@ -1,31 +1,25 @@
 import * as materialService from '../Services/materialService.js';
 
-export const getMaterialsByCourseId = async (req, res) => {
+export const getMaterialsByCourseId = async (req, res, next) => {
   try {
     const { courseId } = req.params;
     const materials = await materialService.findMaterialsByCourseId(courseId);
     res.json(materials);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const getAllMaterials = async (req, res) => {
+export const getAllMaterials = async (req, res, next) => {
   try {
     const materials = await materialService.findAllMaterials();
     res.json(materials);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const getMaterialById = async (req, res) => {
+export const getMaterialById = async (req, res, next) => {
   try {
     const { id, courseId } = req.params;
     const material = await materialService.findMaterialById(id, courseId);
@@ -34,17 +28,11 @@ export const getMaterialById = async (req, res) => {
     }
     res.json(material);
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'ID Material tidak valid.' });
-    }
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const createMaterial = async (req, res) => {
+export const createMaterial = async (req, res, next) => {
   try {
     const { courseId } = req.params;
     const newMaterial = await materialService.createMaterial({
@@ -53,19 +41,11 @@ export const createMaterial = async (req, res) => {
     });
     res.status(201).json(newMaterial);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const updateMaterial = async (req, res) => {
-  if (!req.params.id || !req.params.courseId) {
-    return res
-      .status(400)
-      .json({ error: 'Material ID and Course ID are required' });
-  }
+export const updateMaterial = async (req, res, next) => {
   try {
     const updatedMaterial = await materialService.updateMaterial(
       req.params.id,
@@ -77,22 +57,11 @@ export const updateMaterial = async (req, res) => {
     }
     res.json(updatedMaterial);
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'ID Material tidak valid.' });
-    }
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const deleteMaterial = async (req, res) => {
-  if (!req.params.id || !req.params.courseId) {
-    return res
-      .status(400)
-      .json({ error: 'Material ID and Course ID are required' });
-  }
+export const deleteMaterial = async (req, res, next) => {
   try {
     const deletedMaterial = await materialService.removeMaterial(
       req.params.id,
@@ -106,12 +75,6 @@ export const deleteMaterial = async (req, res) => {
       data: deletedMaterial,
     });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'ID Material tidak valid.' });
-    }
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };

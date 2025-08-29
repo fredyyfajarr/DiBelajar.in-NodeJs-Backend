@@ -1,86 +1,55 @@
 import * as userService from '../Services/userService.js';
 
-export const getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res, next) => {
   try {
     const allUsers = await userService.findAllUsers();
     res.json(allUsers);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const getUserById = async (req, res) => {
+export const getUserById = async (req, res, next) => {
   try {
     const user = await userService.findUserById(req.params.id);
     if (!user) {
-      return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+      return res.status(404).json({ error: 'User not found.' });
     }
     res.json(user);
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'ID Pengguna tidak valid.' });
-    }
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
   try {
     const newUser = await userService.createUser(req.body);
     res.status(201).json(newUser);
   } catch (error) {
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const updateUser = async (req, res) => {
-  if (!req.params.id) {
-    return res.status(400).json({ error: 'User ID is required' });
-  }
+export const updateUser = async (req, res, next) => {
   try {
     const updatedUser = await userService.updateUser(req.params.id, req.body);
     if (!updatedUser) {
-      return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+      return res.status(404).json({ error: 'User not found.' });
     }
     res.json(updatedUser);
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'ID Pengguna tidak valid.' });
-    }
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    console.error('Error updating user:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };
 
-export const deleteUser = async (req, res) => {
-  if (!req.params.id) {
-    return res.status(400).json({ error: 'User ID is required' });
-  }
+export const deleteUser = async (req, res, next) => {
   try {
     const deletedUser = await userService.removeUser(req.params.id);
     if (!deletedUser) {
-      return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
+      return res.status(404).json({ error: 'User not found.' });
     }
-    res.json({ message: 'Pengguna berhasil dihapus.', data: deletedUser });
+    res.json({ message: 'User deleted successfully.', data: deletedUser });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'ID Pengguna tidak valid.' });
-    }
-    if (error.message) {
-      return res.status(400).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Internal Server Error' });
+    next(error);
   }
 };

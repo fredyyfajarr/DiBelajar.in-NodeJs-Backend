@@ -13,11 +13,21 @@ import {
   removeEnrollment,
 } from '../Controllers/EnrollmentController.js';
 
+import { validate } from '../Middleware/validate.js';
+import {
+  createUserSchema,
+  updateUserSchema,
+} from '../validation/user.validation.js';
+
 const router = express.Router();
 
-router.route('/').get(getAllUsers).post(createUser);
+router.route('/').get(getAllUsers).post(validate(createUserSchema), createUser);
 
-router.route('/:id').get(getUserById).put(updateUser).delete(deleteUser);
+router
+  .route('/:id')
+  .get(getUserById)
+  .put(validate(updateUserSchema), updateUser)
+  .delete(deleteUser);
 
 router
   .route('/:userId/enrollments')
