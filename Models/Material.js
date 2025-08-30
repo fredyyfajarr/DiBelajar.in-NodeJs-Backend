@@ -30,9 +30,17 @@ const materialSchema = new mongoose.Schema({
   },
 });
 
-materialSchema.pre('save', function (next) {
-  if (this.isModified('title')) {
-    this.slug = slugify(this.title, { lower: true, strict: true });
+materialSchema.pre('save', async function (next) {
+  if (this.isModified('title') || !this.slug) {
+    let slug = slugify(this.title, { lower: true, strict: true });
+    let count = await Material.countDocuments({
+      slug,
+      courseId: this.courseId,
+    });
+    if (count > 0) {
+      slug += `-${slug}-${count + 1}`;
+    }
+    this.slug = slug;
   }
   next();
 });

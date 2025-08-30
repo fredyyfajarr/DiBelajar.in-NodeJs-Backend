@@ -38,7 +38,7 @@ router
 
 // GET, PUT, dan DELETE satu materi di dalam sebuah kursus
 router
-  .route('/:idOrSlug')
+  .route('/:materialIdOrSlug')
   .get(getMaterialById)
   .put(validate(updateMaterialSchema), updateMaterial)
   .delete(deleteMaterial);

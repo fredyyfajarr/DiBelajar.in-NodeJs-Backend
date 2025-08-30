@@ -1,12 +1,12 @@
 import Material from '../Models/Material.js';
 import mongoose from 'mongoose';
 
-const getMaterialQuery = (idOrSlug, courseIdOrSlug) => {
+const getMaterialQuery = (materialIdOrSlug, courseIdOrSlug) => {
   let query = { courseId: courseIdOrSlug };
-  if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-    query._id = idOrSlug;
+  if (mongoose.Types.ObjectId.isValid(materialIdOrSlug)) {
+    query._id = materialIdOrSlug;
   } else {
-    query.slug = idOrSlug;
+    query.slug = materialIdOrSlug;
   }
   return query;
 };
@@ -36,9 +36,9 @@ export const findAllMaterials = async () => {
   }
 };
 
-export const findMaterialById = async (idOrSlug, courseId) => {
+export const findMaterialById = async (materialIdOrSlug, courseId) => {
   try {
-    const query = getMaterialQuery(idOrSlug, courseId);
+    const query = getMaterialQuery(materialIdOrSlug, courseId);
     const material = await Material.findOne(query);
     return material;
   } catch (error) {
@@ -57,12 +57,12 @@ export const createMaterial = async (newMaterialData) => {
 };
 
 export const updateMaterial = async (
-  idOrSlug,
+  materialIdOrSlug,
   courseIdOrSlug,
   updateMaterialData
 ) => {
   try {
-    const query = getMaterialQuery(idOrSlug, courseIdOrSlug);
+    const query = getMaterialQuery(materialIdOrSlug, courseIdOrSlug);
     const materialToUpdate = await Material.findOne(query);
 
     if (!materialToUpdate) {
@@ -78,9 +78,9 @@ export const updateMaterial = async (
   }
 };
 
-export const removeMaterial = async (idOrSlug, courseIdOrSlug) => {
+export const removeMaterial = async (materialIdOrSlug, courseIdOrSlug) => {
   try {
-    const query = getMaterialQuery(idOrSlug, courseIdOrSlug);
+    const query = getMaterialQuery(materialIdOrSlug, courseIdOrSlug);
     const deletedMaterial = await Material.findOneAndDelete(query);
     return deletedMaterial;
   } catch (error) {

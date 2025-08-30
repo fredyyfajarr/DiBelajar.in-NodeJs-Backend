@@ -1,12 +1,34 @@
 import * as testResultService from '../Services/testResultService.js';
+import * as userService from '../Services/userService.js';
+import * as materialService from '../Services/materialService.js';
+import * as courseService from '../Services/courseService.js';
 
 export const createTestResult = async (req, res, next) => {
   try {
-    const { materialId } = req.params;
-    const { userId, score, answers } = req.body;
+    const { materialIdOrSlug, courseIdOrSlug } = req.params;
+    const { userIdOrSlug, score, answers } = req.body;
+
+    const user = await userService.findUserById(userIdOrSlug);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const course = await courseService.findCourseById(courseIdOrSlug);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    const material = await materialService.findMaterialById(
+      materialIdOrSlug,
+      course._id
+    );
+    if (!material) {
+      return res.status(404).json({ error: 'Material not found' });
+    }
+
     const newTestResult = await testResultService.createTestResult(
-      userId,
-      materialId,
+      user._id,
+      material._id,
       score,
       answers
     );
@@ -18,9 +40,23 @@ export const createTestResult = async (req, res, next) => {
 
 export const getTestResultsByMaterialId = async (req, res, next) => {
   try {
-    const { materialId } = req.params;
+    const { materialIdOrSlug, courseIdOrSlug } = req.params;
+
+    const course = await courseService.findCourseById(courseIdOrSlug);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    const material = await materialService.findMaterialById(
+      materialIdOrSlug,
+      course._id
+    );
+    if (!material) {
+      return res.status(404).json({ error: 'Material not found' });
+    }
+
     const testResults = await testResultService.findTestResultsByMaterialId(
-      materialId
+      material._id
     );
     res.json(testResults);
   } catch (error) {
@@ -30,8 +66,14 @@ export const getTestResultsByMaterialId = async (req, res, next) => {
 
 export const getTestResultsByUserId = async (req, res, next) => {
   try {
-    const { userId } = req.params;
-    const testResults = await testResultService.findTestResultsByUserId(userId);
+    const { userIdOrSlug } = req.params;
+    const user = await userService.findUserById(userIdOrSlug);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const testResults = await testResultService.findTestResultsByUserId(
+      user._id
+    );
     res.json(testResults);
   } catch (error) {
     next(error);

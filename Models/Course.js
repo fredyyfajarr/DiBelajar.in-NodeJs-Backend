@@ -32,9 +32,14 @@ const courseSchema = new mongoose.Schema(
   }
 );
 
-courseSchema.pre('save', function (next) {
-  if (this.isModified('title')) {
-    this.slug = slugify(this.title, { lower: true, strict: true });
+courseSchema.pre('save', async function (next) {
+  if (this.isModified('title') || !this.slug) {
+    let slug = slugify(this.title, { lower: true, strict: true });
+    let count = await Course.countDocuments({ slug });
+    if (count > 0) {
+      slug += `-${count}`;
+    }
+    this.slug = slug;
   }
   next();
 });

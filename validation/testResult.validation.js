@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 export const createTestResultSchema = Joi.object({
-  userId: Joi.string().required().messages({
+  userIdOrSlug: Joi.string().required().messages({
     'string.base': 'User ID must be a string',
     'any.required': 'User ID is required',
   }),

@@ -22,7 +22,7 @@ export const createSubmission = async (req, res, next) => {
 
     const material = await materialService.findMaterialById(
       materialIdOrSlug,
-      courseIdOrSlug
+      course._id
     );
     if (!material) {
       console.log(materialIdOrSlug);
@@ -50,7 +50,10 @@ export const getSubmissionsByMaterialId = async (req, res, next) => {
       return res.status(404).json({ error: 'Course not found' });
     }
 
-    const material = await materialService.findMaterialById(materialIdOrSlug);
+    const material = await materialService.findMaterialById(
+      materialIdOrSlug,
+      course._id
+    );
     if (!material) {
       console.log('Material not found:', materialIdOrSlug);
       return res.status(404).json({ error: 'Material not found' });

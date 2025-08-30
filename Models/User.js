@@ -36,9 +36,14 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.pre('save', function (next) {
-  if (this.isModified('name')) {
-    this.slug = slugify(this.name, { lower: true, strict: true });
+userSchema.pre('save', async function (next) {
+  if (this.isModified('name') || !this.slug) {
+    let slug = slugify(this.name, { lower: true, strict: true });
+    let count = await User.countDocuments({ slug });
+    if (count > 0) {
+      slug += `-${count}`;
+    }
+    this.slug = slug;
   }
   next();
 });
