@@ -1,4 +1,6 @@
 import * as enrollmentService from '../Services/enrollmentService.js';
+import * as userService from '../Services/userService.js';
+import * as courseService from '../Services/courseService.js';
 
 export const findAllEnrollments = async (req, res, next) => {
   try {
@@ -10,16 +12,22 @@ export const findAllEnrollments = async (req, res, next) => {
 };
 
 export const createEnrollment = async (req, res, next) => {
-  const { userId } = req.params;
-  const { courseId } = req.body;
-
-  if (!userId || !courseId)
-    return res.status(400).json({ error: 'User ID and Course ID required' });
-
   try {
+    const { userIdOrSlug } = req.params;
+    const { courseIdOrSlug } = req.body;
+
+    const user = await userService.findUserById(userIdOrSlug);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const course = await courseService.findCourseById(courseIdOrSlug);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
     const newEnrollment = await enrollmentService.createEnrollment(
-      userId,
-      courseId
+      user._id,
+      course._id
     );
     res.status(201).json(newEnrollment);
   } catch (error) {
@@ -29,8 +37,14 @@ export const createEnrollment = async (req, res, next) => {
 
 export const findEnrollmentByUserId = async (req, res, next) => {
   try {
-    const { userId } = req.params;
-    const enrollments = await enrollmentService.findEnrollmentByUserId(userId);
+    const { userIdOrSlug } = req.params;
+    const user = await userService.findUserById(userIdOrSlug);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const enrollments = await enrollmentService.findEnrollmentByUserId(
+      user._id
+    );
     if (!enrollments || enrollments.length === 0) {
       return res
         .status(404)
@@ -44,9 +58,13 @@ export const findEnrollmentByUserId = async (req, res, next) => {
 
 export const findEnrollmentByCourseId = async (req, res, next) => {
   try {
-    const { courseId } = req.params;
+    const { courseIdOrSlug } = req.params;
+    const course = await courseService.findCourseById(courseIdOrSlug);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
     const enrollments = await enrollmentService.findEnrollmentByCourseId(
-      courseId
+      course._id
     );
     if (!enrollments || enrollments.length === 0) {
       return res
@@ -61,10 +79,18 @@ export const findEnrollmentByCourseId = async (req, res, next) => {
 
 export const removeEnrollment = async (req, res, next) => {
   try {
-    const { userId, courseId } = req.params;
+    const { userIdOrSlug, courseIdOrSlug } = req.params;
+    const user = await userService.findUserById(userIdOrSlug);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const course = await courseService.findCourseById(courseIdOrSlug);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
     const deletedEnrollment = await enrollmentService.removeEnrollment(
-      userId,
-      courseId
+      user._id,
+      course._id
     );
     if (!deletedEnrollment) {
       return res.status(404).json({ error: 'Enrollment not found' });

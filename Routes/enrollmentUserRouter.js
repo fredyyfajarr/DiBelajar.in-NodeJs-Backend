@@ -17,6 +17,6 @@ router
   .post(validate(createEnrollmentSchema), createEnrollment);
 
 // Rute DELETE di bawah user
-router.route('/:courseId').delete(removeEnrollment);
+router.route('/:courseIdOrSlug').delete(removeEnrollment);
 
 export default router;

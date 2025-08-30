@@ -9,6 +9,11 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ error: 'ID not valid.' });
   }
 
+  // Tangani error ValidationError Mongoose
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({ error: 'Validation error.' });
+  }
+
   // Tangani error Mongoose lainnya, seperti duplikasi
   if (err.code && err.code === 11000) {
     return res.status(400).json({ error: 'Data already exists.' });

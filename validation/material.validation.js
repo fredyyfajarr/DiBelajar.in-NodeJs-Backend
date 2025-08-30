@@ -9,7 +9,6 @@ export const createMaterialSchema = Joi.object({
     'string.base': 'Description must be a string',
     'any.required': 'Description is required',
   }),
-  courseId: Joi.string().optional(),
 });
 
 export const updateMaterialSchema = Joi.object({

@@ -11,7 +11,7 @@ export const getAllCourses = async (req, res, next) => {
 
 export const getCourseById = async (req, res, next) => {
   try {
-    const course = await courseService.findCourseById(req.params.id);
+    const course = await courseService.findCourseById(req.params.idOrSlug);
     if (!course) {
       return res.status(404).json({ error: 'Course not found.' });
     }
@@ -33,7 +33,7 @@ export const createCourse = async (req, res, next) => {
 export const updateCourse = async (req, res, next) => {
   try {
     const updatedCourse = await courseService.updateCourse(
-      req.params.id,
+      req.params.idOrSlug,
       req.body
     );
     if (!updatedCourse) {
@@ -47,7 +47,7 @@ export const updateCourse = async (req, res, next) => {
 
 export const deleteCourse = async (req, res, next) => {
   try {
-    const deletedCourse = await courseService.removeCourse(req.params.id);
+    const deletedCourse = await courseService.removeCourse(req.params.idOrSlug);
     if (!deletedCourse) {
       return res.status(404).json({ error: 'Course not found.' });
     }

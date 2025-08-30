@@ -1,9 +1,15 @@
 import mongoose from 'mongoose';
+import slugify from 'slugify';
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+  },
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
   },
   email: {
     type: String,
@@ -13,11 +19,12 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['admin', 'instructor', 'user'],
+    enum: ['admin', 'instructor', 'student'],
   },
   password: {
     type: String,
     required: true,
+    select: false,
   },
   createdAt: {
     type: Date,
@@ -27,6 +34,13 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+userSchema.pre('save', function (next) {
+  if (this.isModified('name')) {
+    this.slug = slugify(this.name, { lower: true, strict: true });
+  }
+  next();
 });
 
 const User = mongoose.model('User', userSchema);

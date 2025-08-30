@@ -1,4 +1,3 @@
-// Routes/materialRouter.js (new file)
 import express from 'express';
 import {
   getAllMaterials,
@@ -11,6 +10,6 @@ const router = express.Router();
 router.get('/', getAllMaterials);
 
 // Rute untuk GET materi berdasarkan ID
-router.get('/:id', getMaterialById);
+router.get('/:idOrSlug', getMaterialById);
 
 export default router;

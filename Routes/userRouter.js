@@ -22,15 +22,15 @@ const router = express.Router();
 router.route('/').get(getAllUsers).post(validate(createUserSchema), createUser);
 
 router
-  .route('/:id')
+  .route('/:idOrSlug')
   .get(getUserById)
   .put(validate(updateUserSchema), updateUser)
   .delete(deleteUser);
 
-router.use('/:userId/enrollments', enrollmenrUserRouter); // rute induk
+router.use('/:userIdOrSlug/enrollments', enrollmenrUserRouter); // rute induk
 
-router.route('/:userId/assignments').get(getSubmissionsByUserId);
-router.route('/:userId/tests').get(getTestResultsByUserId);
-router.route('/:userId/forum/posts').get(getPostsByUserId);
+router.route('/:userIdOrSlug/assignments').get(getSubmissionsByUserId);
+router.route('/:userIdOrSlug/tests').get(getTestResultsByUserId);
+router.route('/:userIdOrSlug/forum/posts').get(getPostsByUserId);
 
 export default router;

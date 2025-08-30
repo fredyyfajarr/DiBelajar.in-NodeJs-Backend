@@ -18,10 +18,13 @@ export const createUserSchema = Joi.object({
     'string.min': 'Password must be at least 8 characters',
     'any.required': 'Password is required',
   }),
-  role: Joi.string().valid('admin', 'instructor', 'user').required().messages({
-    'any.only': 'Role not valid.',
-    'any.required': 'Role is required',
-  }),
+  role: Joi.string()
+    .valid('admin', 'instructor', 'student')
+    .required()
+    .messages({
+      'any.only': 'Role not valid.',
+      'any.required': 'Role is required',
+    }),
 });
 
 // Validation schema for updaeting user data

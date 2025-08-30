@@ -21,12 +21,12 @@ router
   .get(getAllCourses)
   .post(validate(createCourseSchema), createCourse);
 router
-  .route('/:id')
+  .route('/:idOrSlug')
   .get(getCourseById)
   .put(validate(updateCourseSchema), updateCourse)
   .delete(deleteCourse);
 
-router.use('/:courseId/materials', materialNestedRouter);
-router.use('/:courseId/enrollments', enrollmentCourseRouter);
+router.use('/:courseIdOrSlug/materials', materialNestedRouter);
+router.use('/:courseIdOrSlug/enrollments', enrollmentCourseRouter);
 
 export default router;

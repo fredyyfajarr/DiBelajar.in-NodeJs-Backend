@@ -1,4 +1,3 @@
-// Routes/materialNestedRouter.js (new file)
 import express from 'express';
 import { validate } from '../Middleware/validate.js';
 import {
@@ -39,7 +38,7 @@ router
 
 // GET, PUT, dan DELETE satu materi di dalam sebuah kursus
 router
-  .route('/:id')
+  .route('/:idOrSlug')
   .get(getMaterialById)
   .put(validate(updateMaterialSchema), updateMaterial)
   .delete(deleteMaterial);
@@ -48,7 +47,7 @@ router
 // POST /api/courses/:courseId/materials/:materialId/assignments/submit
 // GET /api/courses/:courseId/materials/:materialId/assignments
 router
-  .route('/:materialId/assignments')
+  .route('/:materialIdOrSlug/assignments')
   .get(getSubmissionsByMaterialId)
   .post(validate(createSubmissionSchema), createSubmission);
 
@@ -56,7 +55,7 @@ router
 // POST /api/courses/:courseId/materials/:materialId/tests/submit
 // GET /api/courses/:courseId/materials/:materialId/tests
 router
-  .route('/:materialId/tests')
+  .route('/:materialIdOrSlug/tests')
   .get(getTestResultsByMaterialId)
   .post(validate(createTestResultSchema), createTestResult);
 
@@ -64,7 +63,7 @@ router
 // POST /api/courses/:courseId/materials/:materialId/forum/posts
 // GET /api/courses/:courseId/materials/:materialId/forum/posts
 router
-  .route('/:materialId/forum/posts')
+  .route('/:materialIdOrSlug/forum/posts')
   .get(getPostsByMaterialId)
   .post(validate(createForumPostSchema), createForumPost);
 

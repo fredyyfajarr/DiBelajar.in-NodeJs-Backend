@@ -1,9 +1,15 @@
 import mongoose from 'mongoose';
+import slugify from 'slugify';
 
 const materialSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
+  },
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
   },
   description: {
     type: String,
@@ -22,6 +28,13 @@ const materialSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+materialSchema.pre('save', function (next) {
+  if (this.isModified('title')) {
+    this.slug = slugify(this.title, { lower: true, strict: true });
+  }
+  next();
 });
 
 const Material = mongoose.model('Material', materialSchema);

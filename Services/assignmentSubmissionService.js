@@ -13,6 +13,7 @@ export const createSubmission = async (
     });
     return newSubmission;
   } catch (error) {
+    console.error('Error creating submission:', error);
     throw error;
   }
 };
@@ -22,6 +23,7 @@ export const findSubmissionsByMaterialId = async (materialId) => {
     const submissions = await AssignmentSubmission.find({ materialId });
     return submissions;
   } catch (error) {
+    console.error('Error finding submissions:', error);
     throw error;
   }
 };
@@ -31,6 +33,7 @@ export const findSubmissionsByUserId = async (userId) => {
     const submissions = await AssignmentSubmission.find({ userId });
     return submissions;
   } catch (error) {
+    console.error('Error finding submissions:', error);
     throw error;
   }
 };

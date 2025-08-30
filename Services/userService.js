@@ -1,20 +1,28 @@
 import User from '../Models/User.js';
 import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 
 export const findAllUsers = async () => {
   try {
     const allUsers = await User.find();
     return allUsers;
   } catch (error) {
+    console.error('Error fetching users:', error);
     throw error;
   }
 };
 
-export const findUserById = async (id) => {
+export const findUserById = async (idOrSlug) => {
   try {
-    const user = await User.findById(id);
+    let user;
+    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
+      user = await User.findById(idOrSlug);
+    } else {
+      user = await User.findOne({ slug: idOrSlug });
+    }
     return user;
   } catch (error) {
+    console.error('Error fetching user by ID or slug:', error);
     throw error;
   }
 };
@@ -29,10 +37,11 @@ export const createUser = async (newUserData) => {
     const savedUser = await user.save();
     return savedUser;
   } catch (error) {
+    console.error('Error creating user:', error);
     throw error;
   }
 };
-export const updateUser = async (id, updateData) => {
+export const updateUser = async (idOrSlug, updateData) => {
   try {
     // Hashing password baru jika ada di updateData
     if (updateData.password) {
@@ -40,21 +49,38 @@ export const updateUser = async (id, updateData) => {
       updateData.password = await bcrypt.hash(updateData.password, salt);
     }
 
-    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    let userToUpdate;
+    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
+      userToUpdate = await User.findById(idOrSlug);
+    } else {
+      userToUpdate = await User.findOne({ slug: idOrSlug });
+    }
+
+    if (!userToUpdate) {
+      return null;
+    }
+
+    Object.assign(userToUpdate, updateData);
+    const updatedUser = await userToUpdate.save();
+
     return updatedUser;
   } catch (error) {
+    console.error('Error updating user:', error);
     throw error;
   }
 };
 
-export const removeUser = async (id) => {
+export const removeUser = async (idOrSlug) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(id);
+    let deletedUser;
+    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
+      deletedUser = await User.findByIdAndDelete(idOrSlug);
+    } else {
+      deletedUser = await User.findOneAndDelete({ slug: idOrSlug });
+    }
     return deletedUser;
   } catch (error) {
+    console.error('Error removing user:', error);
     throw error;
   }
 };

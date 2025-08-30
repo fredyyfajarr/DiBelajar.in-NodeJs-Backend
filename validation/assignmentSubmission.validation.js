@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
 export const createSubmissionSchema = Joi.object({
-  userId: Joi.string().required().messages({
+  userIdOrSlug: Joi.string().required().messages({
     'any.required': 'User ID is required',
   }),
   submissionFileUrl: Joi.string().uri().required().messages({
