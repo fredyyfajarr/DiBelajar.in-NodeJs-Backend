@@ -6,14 +6,33 @@ Ini adalah backend REST API untuk platform Learning Management System (LMS) **Di
 
 ## ✨ Fitur Utama
 
-- **Autentikasi & Otorisasi**: Sistem login dan registrasi yang aman menggunakan JWT (JSON Web Tokens).
-- **Berbasis Peran (Role-Based Access Control)**: Tiga level pengguna (`student`, `instructor`, `admin`) dengan hak akses yang berbeda untuk setiap *endpoint*.
-- **Manajemen Pengguna**: Operasi CRUD (Create, Read, Update, Delete) penuh untuk manajemen pengguna oleh Admin.
-- **Manajemen Kursus & Materi**: Instruktur dan Admin dapat membuat, mengedit, dan mengelola kursus beserta materi di dalamnya.
-- **Sistem Pendaftaran (Enrollment)**: Siswa dapat mendaftar ke kursus, dan akses ke materi kursus diproteksi hanya untuk siswa yang terdaftar.
-- **Fitur Interaktif**: Endpoint untuk *submission* tugas, hasil tes, dan forum diskusi per materi.
-- **Keamanan (Hardening)**: Dilengkapi dengan berbagai lapisan keamanan seperti validasi input, rate limiting, security headers (Helmet), dan sanitasi data untuk mencegah serangan umum (XSS, NoSQL Injection).
-- **Logging**: Logging terstruktur menggunakan Winston untuk memonitor aktivitas dan error.
+- **Sistem Autentikasi & Otorisasi Lengkap**:
+  - Registrasi, Login, dan Logout menggunakan **JWT (JSON Web Tokens)**.
+  - Otorisasi berbasis **Peran** (`admin`, `instructor`, `student`).
+  - Otorisasi berbasis **Kepemilikan** (pengguna hanya bisa mengubah datanya sendiri).
+  - Otorisasi berbasis **Kondisi** (hanya siswa yang terdaftar yang bisa mengakses materi kursus).
+
+- **Arsitektur Efisien & Rapi**:
+  - Menggunakan pola **Entity-Loading Middleware** untuk mengurangi query database yang berulang dan menyederhanakan *controller*.
+  - Pemisahan tanggung jawab yang jelas antara **Router, Middleware, Controller, dan Service**.
+
+- **Manajemen Fitur LMS**:
+  - CRUD (Create, Read, Update, Delete) penuh untuk Pengguna, Kursus, dan Materi.
+  - Sistem Pendaftaran (Enrollment) siswa ke kursus.
+  - Fitur interaktif: *Submission* Tugas, Hasil Tes, dan Forum Diskusi per materi.
+
+- **Lapisan Keamanan (Hardening) Lengkap**:
+  - Validasi Input di setiap *endpoint* yang relevan menggunakan **Joi**.
+  - **Rate Limiting** untuk melindungi dari serangan brute-force dan DoS.
+  - **Security Headers** otomatis menggunakan **Helmet** untuk melindungi dari serangan web umum (XSS, clickjacking, dll.).
+  - Perlindungan dari **HTTP Parameter Pollution** menggunakan **hpp**.
+  - Konfigurasi **CORS** untuk interaksi yang aman dengan frontend.
+
+- **Development & Produksi**:
+  - **Logging Terstruktur** menggunakan **Winston** untuk jejak audit dan *debugging* yang andal.
+  - Manajemen *environment variable* yang aman menggunakan **dotenv**.
+  - HTTP Request Logging saat development menggunakan **morgan**.
+  - Kompresi respons otomatis dengan **compression** untuk performa lebih baik.
 
 ---
 
@@ -21,9 +40,10 @@ Ini adalah backend REST API untuk platform Learning Management System (LMS) **Di
 
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB dengan Mongoose ODM
-- **Autentikasi**: JSON Web Token (JWT)
+- **Autentikasi**: JSON Web Token (JWT), bcrypt.js
 - **Validasi**: Joi
-- **Keamanan**: bcrypt.js, Helmet, express-rate-limit, express-mongo-sanitize, xss-clean
+- **Keamanan & Middleware**: Helmet, express-rate-limit, hpp, cors, compression
+- **Logging**: Winston, morgan (dev)
 - **Lainnya**: dotenv, nodemon
 
 ---
@@ -52,11 +72,14 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek ini di lingkungan lokal A
     ```
 
 3.  **Buat file `.env`:**
-    Buat file bernama `.env` di folder root dan salin konten dari `.env.example` (jika ada) atau gunakan template di bawah ini.
+    Buat file bernama `.env` di folder root dan gunakan template di bawah ini.
 
     ```env
-    # Port server akan berjalan
+    # Port server akan berjalan (contoh: 5000)
     PORT=5000
+    
+    # Lingkungan aplikasi (development atau production)
+    NODE_ENV=development
 
     # Connection String untuk database MongoDB Anda
     MONGODB_URI="mongodb+srv://user:password@cluster.mongodb.net/database_name"
@@ -74,7 +97,7 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek ini di lingkungan lokal A
       ```bash
       npm start
       ```
-    Server akan berjalan di `http://localhost:5000`.
+    Server akan berjalan di `http://localhost:5000` (atau port yang Anda tentukan).
 
 ---
 
@@ -86,7 +109,9 @@ Berikut adalah beberapa contoh *endpoint* utama. Untuk detail lengkap, silakan l
 | :--- | :--- | :--- | :--- |
 | Registrasi User | `POST` | `/api/auth/register`| Publik |
 | Login User | `POST`| `/api/auth/login` | Publik |
+| Logout User | `POST`| `/api/auth/logout` | Publik |
 | Melihat Semua Kursus | `GET` | `/api/courses` | Publik |
 | Membuat Kursus | `POST` | `/api/courses` | Admin, Instructor |
-| Melihat Semua User | `GET` | `/api/users` | Admin |
-| Melihat Materi Kursus | `GET` | `/api/courses/:id/materials` | Terdaftar, Admin, Instructor |
+| Mengedit Profil Sendiri| `PUT` | `/api/users/:myId` | Pemilik Akun |
+| Menghapus User Lain | `DELETE`| `/api/users/:userId`| Admin |
+| Melihat Materi Kursus | `GET` | `/api/courses/:id/materials` | Terdaftar di Kursus |
