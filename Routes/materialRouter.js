@@ -1,4 +1,5 @@
 import express from 'express';
+import { protect } from '../Middleware/authMiddleware.js';
 import {
   getAllMaterials,
   getMaterialById,
@@ -7,9 +8,9 @@ import {
 const router = express.Router();
 
 // Rute untuk GET semua materi
-router.get('/', getAllMaterials);
+router.get('/', protect, getAllMaterials);
 
 // Rute untuk GET materi berdasarkan ID
-router.get('/:idOrSlug', getMaterialById);
+router.get('/:idOrSlug', protect, getMaterialById);
 
 export default router;

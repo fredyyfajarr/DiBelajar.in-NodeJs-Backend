@@ -6,12 +6,12 @@ import * as courseService from '../Services/courseService.js';
 export const createTestResult = async (req, res, next) => {
   try {
     const { materialIdOrSlug, courseIdOrSlug } = req.params;
-    const { userIdOrSlug, score, answers } = req.body;
-
-    const user = await userService.findUserById(userIdOrSlug);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    const { score, answers } = req.body;
+    const userId = req.user._id;
+    // const user = await userService.findUserById(userIdOrSlug);
+    // if (!user) {
+    //   return res.status(404).json({ error: 'User not found' });
+    // }
 
     const course = await courseService.findCourseById(courseIdOrSlug);
     if (!course) {
@@ -27,7 +27,7 @@ export const createTestResult = async (req, res, next) => {
     }
 
     const newTestResult = await testResultService.createTestResult(
-      user._id,
+      userId,
       material._id,
       score,
       answers

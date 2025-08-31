@@ -18,6 +18,20 @@ const errorHandler = (err, req, res, next) => {
   if (err.code && err.code === 11000) {
     return res.status(400).json({ error: 'Data already exists.' });
   }
+  // Tangani error MongoDB
+  if (err.name === 'MongoError') {
+    return res.status(500).json({ error: 'MongoDB error.' });
+  }
+
+  // Tangani error jsonwebtoken
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({ error: 'Invalid token.' });
+  }
+
+  // Tangani error token expired
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({ error: 'Token expired.' });
+  }
 
   // Tangani error kustom lainnya
   if (err.message) {

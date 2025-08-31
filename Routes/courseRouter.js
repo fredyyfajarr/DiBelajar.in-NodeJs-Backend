@@ -1,4 +1,6 @@
 import express from 'express';
+import { protect, authorize } from '../Middleware/authMiddleware.js';
+import { validate } from '../Middleware/validate.js';
 import {
   getAllCourses,
   getCourseById,
@@ -6,9 +8,8 @@ import {
   updateCourse,
   deleteCourse,
 } from '../Controllers/CourseController.js';
-import materialNestedRouter from './materialNestedRouter.js'; // Impor router material
-import enrollmentCourseRouter from './enrollmentCourseRouter.js'; // Impor router enrollment
-import { validate } from '../Middleware/validate.js';
+import materialNestedRouter from './materialNestedRouter.js';
+import enrollmentCourseRouter from './enrollmentCourseRouter.js';
 import {
   createCourseSchema,
   updateCourseSchema,
@@ -19,14 +20,24 @@ const router = express.Router();
 router
   .route('/')
   .get(getAllCourses)
-  .post(validate(createCourseSchema), createCourse);
+  .post(
+    protect,
+    authorize('admin', 'instructor'),
+    validate(createCourseSchema),
+    createCourse
+  );
 router
   .route('/:idOrSlug')
   .get(getCourseById)
-  .put(validate(updateCourseSchema), updateCourse)
-  .delete(deleteCourse);
+  .put(
+    protect,
+    authorize('admin', 'instructor'),
+    validate(updateCourseSchema),
+    updateCourse
+  )
+  .delete(protect, authorize('admin', 'instructor'), deleteCourse);
 
-router.use('/:courseIdOrSlug/materials', materialNestedRouter);
-router.use('/:courseIdOrSlug/enrollments', enrollmentCourseRouter);
+router.use('/:courseIdOrSlug/materials', protect, materialNestedRouter);
+router.use('/:courseIdOrSlug/enrollments', protect, enrollmentCourseRouter);
 
 export default router;

@@ -6,13 +6,14 @@ import * as courseService from '../Services/courseService.js';
 export const createSubmission = async (req, res, next) => {
   try {
     const { materialIdOrSlug, courseIdOrSlug } = req.params;
-    const { userIdOrSlug, submissionFileUrl } = req.body;
+    const { submissionFileUrl } = req.body;
+    const userId = req.user._id;
 
-    const user = await userService.findUserById(userIdOrSlug);
-    if (!user) {
-      console.log('User not found:', userIdOrSlug);
-      return res.status(404).json({ error: 'User not found' });
-    }
+    // const user = await userService.findUserById(userIdOrSlug);
+    // if (!user) {
+    //   console.log('User not found:', userIdOrSlug);
+    //   return res.status(404).json({ error: 'User not found' });
+    // }
 
     const course = await courseService.findCourseById(courseIdOrSlug);
     if (!course) {
@@ -30,7 +31,7 @@ export const createSubmission = async (req, res, next) => {
     }
 
     const newSubmission = await assignmentSubmissionService.createSubmission(
-      user._id,
+      userId,
       material._id,
       submissionFileUrl
     );
