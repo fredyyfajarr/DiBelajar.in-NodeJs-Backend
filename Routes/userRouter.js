@@ -1,9 +1,10 @@
 import express from 'express';
 import { validate } from '../middlewares/validate.js';
+import { loadUser } from '../middlewares/userMiddleware.js';
 import {
   protect,
   authorize,
-  authorizeSelfOraAdmin,
+  authorizeSelfOrAdmin,
 } from '../middlewares/authMiddleware.js';
 import {
   getAllUsers,
@@ -29,28 +30,36 @@ router
   .get(protect, authorize('admin'), getAllUsers)
   .post(protect, authorize('admin'), validate(createUserSchema), createUser);
 
-router.route('/:idOrSlug').delete(protect, authorize('admin'), deleteUser);
+router.route('/:idOrSlug');
 
 router
   .route('/:idOrSlug')
-  .get(protect, authorizeSelfOraAdmin, getUserById)
-  .put(protect, authorizeSelfOraAdmin, validate(updateUserSchema), updateUser);
+  .get(protect, loadUser, authorizeSelfOrAdmin, getUserById)
+  .put(
+    protect,
+    loadUser,
+    authorizeSelfOrAdmin,
+    validate(updateUserSchema),
+    updateUser
+  )
+  .delete(protect, loadUser, authorizeSelfOrAdmin, deleteUser);
 
 router.use(
   '/:userIdOrSlug/enrollments',
   protect,
-  authorizeSelfOraAdmin,
+  loadUser,
+  authorizeSelfOrAdmin,
   enrollmenrUserRouter
 ); // rute induk
 
 router
   .route('/:userIdOrSlug/assignments')
-  .get(protect, authorizeSelfOraAdmin, getSubmissionsByUserId);
+  .get(protect, loadUser, authorizeSelfOrAdmin, getSubmissionsByUserId);
 router
   .route('/:userIdOrSlug/tests')
-  .get(protect, authorizeSelfOraAdmin, getTestResultsByUserId);
+  .get(protect, loadUser, authorizeSelfOrAdmin, getTestResultsByUserId);
 router
   .route('/:userIdOrSlug/forum/posts')
-  .get(protect, authorizeSelfOraAdmin, getPostsByUserId);
+  .get(protect, loadUser, authorizeSelfOrAdmin, getPostsByUserId);
 
 export default router;

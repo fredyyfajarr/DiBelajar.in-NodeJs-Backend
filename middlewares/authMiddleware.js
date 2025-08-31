@@ -47,7 +47,7 @@ export const authorize = (...roles) => {
 };
 
 // Middleware to authorize self or admin
-export const authorizeSelfOraAdmin = (req, res, next) => {
+export const authorizeSelfOrAdmin = (req, res, next) => {
   const idFromParams = req.params.idOrSlug || req.params.userIdOrSlug;
 
   if (req.user.role === 'admin') {

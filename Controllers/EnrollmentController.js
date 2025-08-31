@@ -13,13 +13,9 @@ export const findAllEnrollments = async (req, res, next) => {
 
 export const createEnrollment = async (req, res, next) => {
   try {
-    const { userIdOrSlug } = req.params;
+    const user = req.profile;
     const { courseIdOrSlug } = req.body;
 
-    const user = await userService.findUserById(userIdOrSlug);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
     const course = await courseService.findCourseById(courseIdOrSlug);
     if (!course) {
       return res.status(404).json({ error: 'Course not found' });

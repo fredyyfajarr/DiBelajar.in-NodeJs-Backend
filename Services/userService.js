@@ -41,23 +41,12 @@ export const createUser = async (newUserData) => {
     throw error;
   }
 };
-export const updateUser = async (idOrSlug, updateData) => {
+export const updateUser = async (userToUpdate, updateData) => {
   try {
     // Hashing password baru jika ada di updateData
     if (updateData.password) {
       const salt = await bcrypt.genSalt(10);
       updateData.password = await bcrypt.hash(updateData.password, salt);
-    }
-
-    let userToUpdate;
-    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-      userToUpdate = await User.findById(idOrSlug);
-    } else {
-      userToUpdate = await User.findOne({ slug: idOrSlug });
-    }
-
-    if (!userToUpdate) {
-      return null;
     }
 
     Object.assign(userToUpdate, updateData);
@@ -70,15 +59,10 @@ export const updateUser = async (idOrSlug, updateData) => {
   }
 };
 
-export const removeUser = async (idOrSlug) => {
+export const removeUser = async (userToDelete) => {
   try {
-    let deletedUser;
-    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-      deletedUser = await User.findByIdAndDelete(idOrSlug);
-    } else {
-      deletedUser = await User.findOneAndDelete({ slug: idOrSlug });
-    }
-    return deletedUser;
+    await User.findByIdAndDelete(userToDelete._id);
+    return userToDelete;
   } catch (error) {
     console.error('Error removing user:', error);
     throw error;

@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import logger from './config/logger.js';
+import compression from 'compression';
+import cors from 'cors';
+import hpp from 'hpp';
+import morgan from 'morgan';
 // DB Connect
 import connectDB from './config/db.js';
 // Error Handler
@@ -16,9 +20,13 @@ import authRouter from './routes/authRouter.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 // Security Middleware
 app.use(helmet());
 // Middleware
+app.use(compression());
+app.use(cors());
+app.use(hpp());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -41,6 +49,9 @@ app.use('/api/auth', authRouter);
 
 // Error handling middleware
 app.use(errorHandler);
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 dotenv.config();
 connectDB();
