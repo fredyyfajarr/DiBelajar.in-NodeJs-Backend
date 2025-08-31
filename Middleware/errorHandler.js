@@ -1,3 +1,5 @@
+import logger from '../config/logger';
+
 const errorHandler = (err, req, res, next) => {
   // Tangani error Joi (Validasi)
   if (err.isJoi) {
@@ -39,7 +41,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Fallback untuk error server internal
-  console.error(err.stack);
+  logger.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error.' });
 };
 
