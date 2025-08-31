@@ -1,4 +1,4 @@
-import AssignmentSubmission from '../Models/AssignmentSubmission.js';
+import AssignmentSubmission from '../models/AssignmentSubmission.js';
 
 export const createSubmission = async (
   userId,

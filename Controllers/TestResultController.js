@@ -1,30 +1,13 @@
-import * as testResultService from '../Services/testResultService.js';
-import * as userService from '../Services/userService.js';
-import * as materialService from '../Services/materialService.js';
-import * as courseService from '../Services/courseService.js';
+import * as testResultService from '../services/testResultService.js';
+import * as userService from '../services/userService.js';
+import * as materialService from '../services/materialService.js';
+import * as courseService from '../services/courseService.js';
 
 export const createTestResult = async (req, res, next) => {
   try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-    const { score, answers } = req.body;
+    const material = req.material;
     const userId = req.user._id;
-    // const user = await userService.findUserById(userIdOrSlug);
-    // if (!user) {
-    //   return res.status(404).json({ error: 'User not found' });
-    // }
-
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    const material = await materialService.findMaterialById(
-      materialIdOrSlug,
-      course._id
-    );
-    if (!material) {
-      return res.status(404).json({ error: 'Material not found' });
-    }
+    const { score, answers } = req.body;
 
     const newTestResult = await testResultService.createTestResult(
       userId,
@@ -40,21 +23,7 @@ export const createTestResult = async (req, res, next) => {
 
 export const getTestResultsByMaterialId = async (req, res, next) => {
   try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    const material = await materialService.findMaterialById(
-      materialIdOrSlug,
-      course._id
-    );
-    if (!material) {
-      return res.status(404).json({ error: 'Material not found' });
-    }
-
+    const material = req.material;
     const testResults = await testResultService.findTestResultsByMaterialId(
       material._id
     );

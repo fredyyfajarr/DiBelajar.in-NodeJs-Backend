@@ -1,4 +1,4 @@
-import * as courseService from '../Services/courseService.js';
+import * as courseService from '../services/courseService.js';
 
 export const getAllCourses = async (req, res, next) => {
   try {
@@ -10,15 +10,16 @@ export const getAllCourses = async (req, res, next) => {
 };
 
 export const getCourseById = async (req, res, next) => {
-  try {
-    const course = await courseService.findCourseById(req.params.idOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found.' });
-    }
-    res.json(course);
-  } catch (error) {
-    next(error);
-  }
+  // try {
+  //   const course = await courseService.findCourseById(req.params.idOrSlug);
+  //   if (!course) {
+  //     return res.status(404).json({ error: 'Course not found.' });
+  //   }
+  //   res.json(course);
+  // } catch (error) {
+  //   next(error);
+  // }
+  res.json(req.course);
 };
 
 export const createCourse = async (req, res, next) => {
@@ -33,12 +34,9 @@ export const createCourse = async (req, res, next) => {
 export const updateCourse = async (req, res, next) => {
   try {
     const updatedCourse = await courseService.updateCourse(
-      req.params.idOrSlug,
+      req.course,
       req.body
     );
-    if (!updatedCourse) {
-      return res.status(404).json({ error: 'Course not found.' });
-    }
     res.json(updatedCourse);
   } catch (error) {
     next(error);
@@ -47,10 +45,7 @@ export const updateCourse = async (req, res, next) => {
 
 export const deleteCourse = async (req, res, next) => {
   try {
-    const deletedCourse = await courseService.removeCourse(req.params.idOrSlug);
-    if (!deletedCourse) {
-      return res.status(404).json({ error: 'Course not found.' });
-    }
+    const deletedCourse = await courseService.removeCourse(req.course);
     res.json({ message: 'Course deleted successfully.', data: deletedCourse });
   } catch (error) {
     next(error);

@@ -1,4 +1,4 @@
-import Material from '../Models/Material.js';
+import Material from '../models/Material.js';
 import mongoose from 'mongoose';
 
 const getMaterialQuery = (materialIdOrSlug, courseIdOrSlug) => {
@@ -56,21 +56,10 @@ export const createMaterial = async (newMaterialData) => {
   }
 };
 
-export const updateMaterial = async (
-  materialIdOrSlug,
-  courseIdOrSlug,
-  updateMaterialData
-) => {
+export const updateMaterial = async (materialToUpdate, updateMaterialData) => {
   try {
-    const query = getMaterialQuery(materialIdOrSlug, courseIdOrSlug);
-    const materialToUpdate = await Material.findOne(query);
-
-    if (!materialToUpdate) {
-      return null;
-    }
     Object.assign(materialToUpdate, updateMaterialData);
     const updatedMaterial = await materialToUpdate.save();
-
     return updatedMaterial;
   } catch (error) {
     console.error('Error updating material:', error);
@@ -78,11 +67,10 @@ export const updateMaterial = async (
   }
 };
 
-export const removeMaterial = async (materialIdOrSlug, courseIdOrSlug) => {
+export const removeMaterial = async (materialToDelete) => {
   try {
-    const query = getMaterialQuery(materialIdOrSlug, courseIdOrSlug);
-    const deletedMaterial = await Material.findOneAndDelete(query);
-    return deletedMaterial;
+    await Material.findOneAndDelete(materialToDelete._id);
+    return materialToDelete;
   } catch (error) {
     console.error('Error removing material:', error);
     throw error;

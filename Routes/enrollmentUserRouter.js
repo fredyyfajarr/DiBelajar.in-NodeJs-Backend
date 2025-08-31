@@ -1,12 +1,12 @@
 // Routes/enrollmentUserRouter.js
 import express from 'express';
-import { validate } from '../Middleware/validate.js';
-import { authorize, protect } from '../Middleware/authMiddleware.js';
+import { validate } from '../middlewares/validate.js';
+import { authorize, protect } from '../middlewares/authMiddleware.js';
 import {
   findEnrollmentByUserId,
   createEnrollment,
   removeEnrollment,
-} from '../Controllers/EnrollmentController.js';
+} from '../controllers/EnrollmentController.js';
 import { createEnrollmentSchema } from '../validation/enrollment.validation.js';
 
 const router = express.Router({ mergeParams: true });

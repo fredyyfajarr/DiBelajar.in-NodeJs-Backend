@@ -1,30 +1,13 @@
-import * as forumPostService from '../Services/forumPostService.js';
-import * as userService from '../Services/userService.js';
-import * as courseService from '../Services/courseService.js';
-import * as materialService from '../Services/materialService.js';
+import * as forumPostService from '../services/forumPostService.js';
+import * as userService from '../services/userService.js';
+import * as courseService from '../services/courseService.js';
+import * as materialService from '../services/materialService.js';
 
 export const createForumPost = async (req, res, next) => {
   try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-    const { text } = req.body;
+    const material = req.material;
     const userId = req.user._id;
-    // const user = await userService.findUserById(userIdOrSlug);
-    // if (!user) {
-    //   return res.status(404).json({ error: 'User not found' });
-    // }
-
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    const material = await materialService.findMaterialById(
-      materialIdOrSlug,
-      course._id
-    );
-    if (!material) {
-      return res.status(404).json({ error: 'Material not found' });
-    }
+    const { text } = req.body;
 
     const newPost = await forumPostService.createForumPost(
       userId,
@@ -39,21 +22,7 @@ export const createForumPost = async (req, res, next) => {
 
 export const getPostsByMaterialId = async (req, res, next) => {
   try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    const material = await materialService.findMaterialById(
-      materialIdOrSlug,
-      course._id
-    );
-    if (!material) {
-      return res.status(404).json({ error: 'Material not found' });
-    }
-
+    const material = req.material;
     const posts = await forumPostService.findPostsByMaterialId(material._id);
     res.json(posts);
   } catch (error) {

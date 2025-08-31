@@ -1,4 +1,4 @@
-import Course from '../Models/Course.js';
+import Course from '../models/Course.js';
 import mongoose from 'mongoose';
 
 export const findAllCourses = async () => {
@@ -37,19 +37,8 @@ export const createCourse = async (newCourseData) => {
   }
 };
 
-export const updateCourse = async (idOrSlug, updatedData) => {
+export const updateCourse = async (courseToUpdate, updatedData) => {
   try {
-    let courseToUpdate;
-    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-      courseToUpdate = await Course.findById(idOrSlug);
-    } else {
-      courseToUpdate = await Course.findOne({ slug: idOrSlug });
-    }
-
-    if (!courseToUpdate) {
-      return null;
-    }
-
     Object.assign(courseToUpdate, updatedData);
     const updatedCourse = await courseToUpdate.save();
 
@@ -60,15 +49,10 @@ export const updateCourse = async (idOrSlug, updatedData) => {
   }
 };
 
-export const removeCourse = async (idOrSlug) => {
+export const removeCourse = async (courseToDelete) => {
   try {
-    let deletedCourse;
-    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-      deletedCourse = await Course.findByIdAndDelete(idOrSlug);
-    } else {
-      deletedCourse = await Course.findOneAndDelete({ slug: idOrSlug });
-    }
-    return deletedCourse;
+    await Course.findByIdAndDelete(courseToDelete._id);
+    return courseToDelete;
   } catch (error) {
     throw error;
   }

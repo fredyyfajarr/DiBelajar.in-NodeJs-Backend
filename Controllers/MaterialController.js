@@ -1,5 +1,5 @@
-import * as materialService from '../Services/materialService.js';
-import * as courseService from '../Services/courseService.js';
+import * as materialService from '../services/materialService.js';
+import * as courseService from '../services/courseService.js';
 
 export const getMaterialsByCourseId = async (req, res, next) => {
   try {
@@ -25,23 +25,24 @@ export const getAllMaterials = async (req, res, next) => {
 };
 
 export const getMaterialById = async (req, res, next) => {
-  try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-    const material = await materialService.findMaterialById(
-      materialIdOrSlug,
-      course._id
-    );
-    if (!material) {
-      return res.status(404).json({ error: 'Material not found' });
-    }
-    res.json(material);
-  } catch (error) {
-    next(error);
-  }
+  // try {
+  //   const { materialIdOrSlug, courseIdOrSlug } = req.params;
+  //   const course = await courseService.findCourseById(courseIdOrSlug);
+  //   if (!course) {
+  //     return res.status(404).json({ error: 'Course not found' });
+  //   }
+  //   const material = await materialService.findMaterialById(
+  //     materialIdOrSlug,
+  //     course._id
+  //   );
+  //   if (!material) {
+  //     return res.status(404).json({ error: 'Material not found' });
+  //   }
+  //   res.json(material);
+  // } catch (error) {
+  //   next(error);
+  // }
+  res.json(req.material);
 };
 
 export const createMaterial = async (req, res, next) => {
@@ -63,19 +64,10 @@ export const createMaterial = async (req, res, next) => {
 
 export const updateMaterial = async (req, res, next) => {
   try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
     const updatedMaterial = await materialService.updateMaterial(
-      materialIdOrSlug,
-      course._id,
+      req.material,
       req.body
     );
-    if (!updatedMaterial) {
-      return res.status(404).json({ error: 'Material not found' });
-    }
     res.json(updatedMaterial);
   } catch (error) {
     next(error);
@@ -84,18 +76,8 @@ export const updateMaterial = async (req, res, next) => {
 
 export const deleteMaterial = async (req, res, next) => {
   try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-    const deletedMaterial = await materialService.removeMaterial(
-      materialIdOrSlug,
-      course._id
-    );
-    if (!deletedMaterial) {
-      return res.status(404).json({ error: 'Material not found' });
-    }
+    const deletedMaterial = await materialService.removeMaterial(req.material);
+
     res.json({
       message: 'Material deleted successfully',
       data: deletedMaterial,

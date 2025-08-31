@@ -1,6 +1,6 @@
-import * as enrollmentService from '../Services/enrollmentService.js';
-import * as userService from '../Services/userService.js';
-import * as courseService from '../Services/courseService.js';
+import * as enrollmentService from '../services/enrollmentService.js';
+import * as userService from '../services/userService.js';
+import * as courseService from '../services/courseService.js';
 
 export const findAllEnrollments = async (req, res, next) => {
   try {

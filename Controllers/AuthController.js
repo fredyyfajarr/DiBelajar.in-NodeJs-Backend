@@ -1,5 +1,5 @@
-import * as userService from '../Services/userService.js';
-import * as authService from '../Services/authService.js';
+import * as userService from '../services/userService.js';
+import * as authService from '../services/authService.js';
 import jwt from 'jsonwebtoken';
 
 export const login = async (req, res, next) => {

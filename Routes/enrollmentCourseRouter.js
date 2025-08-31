@@ -1,6 +1,6 @@
 import express from 'express';
-import { protect, authorize } from '../Middleware/authMiddleware.js';
-import { findEnrollmentByCourseId } from '../Controllers/EnrollmentController.js';
+import { protect, authorize } from '../middlewares/authMiddleware.js';
+import { findEnrollmentByCourseId } from '../controllers/EnrollmentController.js';
 
 const router = express.Router({ mergeParams: true });
 

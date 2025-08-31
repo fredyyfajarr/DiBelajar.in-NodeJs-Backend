@@ -1,4 +1,4 @@
-import logger from '../config/logger';
+import logger from '../config/logger.js';
 
 const errorHandler = (err, req, res, next) => {
   // Tangani error Joi (Validasi)

@@ -1,4 +1,4 @@
-import Enrollment from '../Models/Enrollment.js';
+import Enrollment from '../models/Enrollment.js';
 
 export const findAllEnrollments = async () => {
   try {

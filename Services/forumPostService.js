@@ -1,11 +1,17 @@
-import ForumPost from '../Models/ForumPost.js';
+import ForumPost from '../models/ForumPost.js';
+import sanitizeHtml from 'sanitize-html';
 
 export const createForumPost = async (userId, materialId, text) => {
   try {
+    const cleanText = sanitizeHtml(text, {
+      allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li'],
+      allowedAttributes: {},
+    });
+
     const newPost = await ForumPost.create({
       userId,
       materialId,
-      text,
+      text: cleanText,
     });
     return newPost;
   } catch (error) {

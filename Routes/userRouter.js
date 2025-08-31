@@ -1,20 +1,20 @@
 import express from 'express';
-import { validate } from '../Middleware/validate.js';
+import { validate } from '../middlewares/validate.js';
 import {
   protect,
   authorize,
   authorizeSelfOraAdmin,
-} from '../Middleware/authMiddleware.js';
+} from '../middlewares/authMiddleware.js';
 import {
   getAllUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
-} from '../Controllers/UserController.js';
-import { getSubmissionsByUserId } from '../Controllers/AssignmentSubmissionController.js';
-import { getTestResultsByUserId } from '../Controllers/TestResultController.js';
-import { getPostsByUserId } from '../Controllers/ForumPostController.js';
+} from '../controllers/UserController.js';
+import { getSubmissionsByUserId } from '../controllers/AssignmentSubmissionController.js';
+import { getTestResultsByUserId } from '../controllers/TestResultController.js';
+import { getPostsByUserId } from '../controllers/ForumPostController.js';
 
 import enrollmenrUserRouter from './enrollmentUserRouter.js';
 import {

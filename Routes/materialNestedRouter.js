@@ -1,29 +1,30 @@
 import express from 'express';
-import { validate } from '../Middleware/validate.js';
+import { validate } from '../middlewares/validate.js';
+import { loadMaterial } from '../middlewares/materialMiddleware.js';
 import {
   protect,
   authorize,
   authorizeEnrolled,
-} from '../Middleware/authMiddleware.js';
+} from '../middlewares/authMiddleware.js';
 import {
   getMaterialsByCourseId,
   createMaterial,
   getMaterialById,
   updateMaterial,
   deleteMaterial,
-} from '../Controllers/MaterialController.js';
+} from '../controllers/MaterialController.js';
 import {
   createSubmission,
   getSubmissionsByMaterialId,
-} from '../Controllers/AssignmentSubmissionController.js';
+} from '../controllers/AssignmentSubmissionController.js';
 import {
   createTestResult,
   getTestResultsByMaterialId,
-} from '../Controllers/TestResultController.js';
+} from '../controllers/TestResultController.js';
 import {
   createForumPost,
   getPostsByMaterialId,
-} from '../Controllers/ForumPostController.js';
+} from '../controllers/ForumPostController.js';
 
 import {
   createMaterialSchema,
@@ -49,14 +50,20 @@ router
 // GET, PUT, dan DELETE satu materi di dalam sebuah kursus
 router
   .route('/:materialIdOrSlug')
-  .get(protect, authorizeEnrolled, getMaterialById)
+  .get(protect, authorizeEnrolled, loadMaterial, getMaterialById)
   .put(
     protect,
     authorize('admin', 'instructor'),
+    loadMaterial,
     validate(updateMaterialSchema),
     updateMaterial
   )
-  .delete(protect, authorize('admin', 'instructor'), deleteMaterial);
+  .delete(
+    protect,
+    authorize('admin', 'instructor'),
+    loadMaterial,
+    deleteMaterial
+  );
 
 // Rute untuk AssignmentSubmission
 // POST /api/courses/:courseId/materials/:materialId/assignments/submit
@@ -67,12 +74,14 @@ router
     protect,
     authorizeEnrolled,
     authorize('admin', 'instructor'),
+    loadMaterial,
     getSubmissionsByMaterialId
   )
   .post(
     protect,
     authorize('student'),
     validate(createSubmissionSchema),
+    loadMaterial,
     createSubmission
   );
 
@@ -81,10 +90,16 @@ router
 // GET /api/courses/:courseId/materials/:materialId/tests
 router
   .route('/:materialIdOrSlug/tests')
-  .get(protect, authorize('admin', 'instructor'), getTestResultsByMaterialId)
+  .get(
+    protect,
+    authorize('admin', 'instructor'),
+    loadMaterial,
+    getTestResultsByMaterialId
+  )
   .post(
     protect,
     authorize('student'),
+    loadMaterial,
     validate(createTestResultSchema),
     createTestResult
   );
@@ -94,10 +109,11 @@ router
 // GET /api/courses/:courseId/materials/:materialId/forum/posts
 router
   .route('/:materialIdOrSlug/forum/posts')
-  .get(protect, getPostsByMaterialId)
+  .get(protect, loadMaterial, getPostsByMaterialId)
   .post(
     protect,
     authorize('admin', 'instructor', 'student'),
+    loadMaterial,
     validate(createForumPostSchema),
     createForumPost
   );

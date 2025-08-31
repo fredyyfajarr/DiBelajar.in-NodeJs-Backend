@@ -2,19 +2,17 @@ import express from 'express';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
-import xss from 'xss-clean';
 import logger from './config/logger.js';
 // DB Connect
 import connectDB from './config/db.js';
 // Error Handler
-import errorHandler from './Middleware/errorHandler.js';
+import errorHandler from './middlewares/errorHandler.js';
 // Routers
-import userRouter from './Routes/userRouter.js';
-import courseRouter from './Routes/courseRouter.js';
-import materialRouter from './Routes/materialRouter.js';
-import enrollmentRouter from './Routes/enrollmentRouter.js';
-import authRouter from './Routes/authRouter.js';
+import userRouter from './routes/userRouter.js';
+import courseRouter from './routes/courseRouter.js';
+import materialRouter from './routes/materialRouter.js';
+import enrollmentRouter from './routes/enrollmentRouter.js';
+import authRouter from './routes/authRouter.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,10 +21,6 @@ app.use(helmet());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Sanitize request data
-app.use(mongoSanitize());
-// Prevent XSS attacks
-app.use(xss());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

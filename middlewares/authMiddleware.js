@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import User from '../Models/User.js';
-import Course from '../Models/Course.js';
-import Enrollment from '../Models/Enrollment.js';
+import User from '../models/User.js';
+import Course from '../models/Course.js';
+import Enrollment from '../models/Enrollment.js';
 
 // Middleware to protect routes
 export const protect = async (req, res, next) => {

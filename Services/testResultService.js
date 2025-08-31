@@ -1,4 +1,4 @@
-import TestResult from '../Models/TestResult.js';
+import TestResult from '../models/TestResult.js';
 
 export const createTestResult = async (userId, materialId, score, answers) => {
   try {

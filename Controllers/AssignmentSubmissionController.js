@@ -1,34 +1,13 @@
-import * as assignmentSubmissionService from '../Services/assignmentSubmissionService.js';
-import * as userService from '../Services/userService.js';
-import * as materialService from '../Services/materialService.js';
-import * as courseService from '../Services/courseService.js';
+import * as assignmentSubmissionService from '../services/assignmentSubmissionService.js';
+import * as userService from '../services/userService.js';
+import * as materialService from '../services/materialService.js';
+import * as courseService from '../services/courseService.js';
 
 export const createSubmission = async (req, res, next) => {
   try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-    const { submissionFileUrl } = req.body;
+    const material = req.material;
     const userId = req.user._id;
-
-    // const user = await userService.findUserById(userIdOrSlug);
-    // if (!user) {
-    //   console.log('User not found:', userIdOrSlug);
-    //   return res.status(404).json({ error: 'User not found' });
-    // }
-
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      console.log('Course not found:', courseIdOrSlug);
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    const material = await materialService.findMaterialById(
-      materialIdOrSlug,
-      course._id
-    );
-    if (!material) {
-      console.log(materialIdOrSlug);
-      return res.status(404).json({ error: 'Material not found' });
-    }
+    const { submissionFileUrl } = req.body;
 
     const newSubmission = await assignmentSubmissionService.createSubmission(
       userId,
@@ -44,22 +23,7 @@ export const createSubmission = async (req, res, next) => {
 
 export const getSubmissionsByMaterialId = async (req, res, next) => {
   try {
-    const { materialIdOrSlug, courseIdOrSlug } = req.params;
-
-    const course = await courseService.findCourseById(courseIdOrSlug);
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    const material = await materialService.findMaterialById(
-      materialIdOrSlug,
-      course._id
-    );
-    if (!material) {
-      console.log('Material not found:', materialIdOrSlug);
-      return res.status(404).json({ error: 'Material not found' });
-    }
-
+    const material = req.material;
     const submissions =
       await assignmentSubmissionService.findSubmissionsByMaterialId(
         material._id
