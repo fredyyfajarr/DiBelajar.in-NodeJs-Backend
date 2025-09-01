@@ -35,11 +35,7 @@ export const findUserById = async (idOrSlug) => {
 
 export const createUser = async (newUserData) => {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newUserData.password, salt);
-
-    const user = new User({ ...newUserData, password: hashedPassword });
-    const savedUser = await user.save();
+    const savedUser = await User.create(newUserData);
     return savedUser;
   } catch (error) {
     console.error('Error creating user:', error);
