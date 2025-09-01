@@ -3,6 +3,7 @@ import { protect, authorize } from '../middlewares/authMiddleware.js';
 import { validate } from '../middlewares/validate.js';
 import { loadCourse } from '../middlewares/courseMiddleware.js';
 import { advancedResults } from '../middlewares/advancedResults.js';
+import { uploadThumbnail } from '../utils/multerConfig.js';
 import {
   getAllCourses,
   getCourseById,
@@ -27,6 +28,7 @@ router
   .post(
     protect,
     authorize('admin', 'instructor'),
+    uploadThumbnail.single('thumbnail'),
     validate(createCourseSchema),
     createCourse
   );

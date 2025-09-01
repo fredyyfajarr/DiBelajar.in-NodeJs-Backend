@@ -18,7 +18,7 @@ import { getSubmissionsByUserId } from '../controllers/AssignmentSubmissionContr
 import { getTestResultsByUserId } from '../controllers/TestResultController.js';
 import { getPostsByUserId } from '../controllers/ForumPostController.js';
 
-import enrollmenrUserRouter from './enrollmentUserRouter.js';
+import enrollmentUserRouter from './enrollmentUserRouter.js';
 import {
   createUserSchema,
   updateUserSchema,
@@ -52,7 +52,7 @@ router.use(
   protect,
   loadUser,
   authorizeSelfOrAdmin,
-  enrollmenrUserRouter
+  enrollmentUserRouter
 ); // rute induk
 
 router

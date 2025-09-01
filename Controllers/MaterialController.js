@@ -1,21 +1,11 @@
 import * as materialService from '../services/materialService.js';
-import {
-  getPaginationOptions,
-  getSortOptions,
-} from '../utils/queryFeatures.js';
 import Material from '../models/Material.js';
 
 export const getMaterialsByCourseId = async (req, res, next) => {
   try {
-    const course = req.course;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOptions(req.query),
-    };
-
     const materials = await materialService.findMaterialsByCourseId(
-      course._id,
-      options
+      req.course._id,
+      req.query
     );
 
     const totalMaterials = await Material.countDocuments({
@@ -34,7 +24,7 @@ export const getMaterialsByCourseId = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-}
+  }
 };
 
 export const getAllMaterials = async (req, res, next) => {

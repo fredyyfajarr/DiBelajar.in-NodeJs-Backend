@@ -15,7 +15,7 @@ export const createCourseSchema = Joi.object({
   thumbnail: Joi.string().uri().optional().messages({
     'string.uri': 'Thumbnail must be a valid URL',
   }),
-  instructorId: Joi.string().required(),
+  // instructorId: Joi.string().required(),
 });
 
 export const updateCourseSchema = Joi.object({

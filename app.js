@@ -7,6 +7,8 @@ import compression from 'compression';
 import cors from 'cors';
 import hpp from 'hpp';
 import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
 // DB Connect
 import connectDB from './config/db.js';
 // Error Handler
@@ -18,6 +20,8 @@ import materialRouter from './routes/materialRouter.js';
 import enrollmentRouter from './routes/enrollmentRouter.js';
 import authRouter from './routes/authRouter.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -39,6 +43,7 @@ const limiter = rateLimit({
 });
 // Apply rate limiting middleware
 app.use(limiter);
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/users', userRouter);

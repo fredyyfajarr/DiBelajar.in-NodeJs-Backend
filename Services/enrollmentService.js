@@ -1,11 +1,12 @@
 import Enrollment from '../models/Enrollment.js';
+import { buildQuery } from '../utils/queryFeatures.js';
 
 export const findAllEnrollments = async () => {
   try {
-    const enrollments = await Enrollment.find()
-      .populate('userId', 'name email')
-      .populate('courseId', 'title description');
-    return enrollments;
+    return await buildQuery(Enrollment, {}, [
+      { path: 'userId', select: 'name email' },
+      { path: 'courseId', select: 'title description' },
+    ]);
   } catch (error) {
     console.error('Error fetching enrollments:', error);
     throw error;
@@ -13,16 +14,13 @@ export const findAllEnrollments = async () => {
 };
 export const findEnrollmentByUserId = async (userId, options = {}) => {
   try {
-    const sort = options.sort || '-completeAt';
-    const skip = options.skip || 0;
-    const limit = options.limit || 10;
-    const enrollments = await Enrollment.find({ userId: userId })
-      .populate('userId', 'name email')
-      .populate('courseId', 'title description')
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    return enrollments;
+    return await buildQuery(Enrollment, options, { userId }, [
+      {
+        path: 'userId',
+        select: 'name email',
+      },
+      { path: 'courseId', select: 'title description' },
+    ]);
   } catch (error) {
     console.error('Error fetching enrollments by user ID:', error);
     throw error;
@@ -31,16 +29,13 @@ export const findEnrollmentByUserId = async (userId, options = {}) => {
 
 export const findEnrollmentByCourseId = async (courseId, options = {}) => {
   try {
-    const sort = options.sort || '-completeAt';
-    const skip = options.skip || 0;
-    const limit = options.limit || 10;
-    const enrollments = await Enrollment.find({ courseId: courseId })
-      .populate('userId', 'name email')
-      .populate('courseId', 'title description')
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    return enrollments;
+    return await buildQuery(Enrollment, options, { courseId }, [
+      {
+        path: 'userId',
+        select: 'name email',
+      },
+      { path: 'courseId', select: 'title description' },
+    ]);
   } catch (error) {
     console.error('Error fetching enrollments by course ID:', error);
     throw error;

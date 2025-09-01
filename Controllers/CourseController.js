@@ -10,7 +10,19 @@ export const getCourseById = async (req, res, next) => {
 
 export const createCourse = async (req, res, next) => {
   try {
-    const newCourse = await courseService.createCourse(req.body);
+    const courseData = { ...req.body };
+    if (req.file) {
+      const thumbnailUrl = `${req.protocol}://${req.get(
+        'host'
+      )}/uploads/thumbnails/${req.file.filename}`;
+      courseData.thumbnail = thumbnailUrl;
+    } else {
+      courseData.thumbnail = `${req.protocol}://${req.get(
+        'host'
+      )}/uploads/default.png`;
+    }
+    courseData.instructorId = req.user._id;
+    const newCourse = await courseService.createCourse(courseData);
     res.status(201).json(newCourse);
   } catch (error) {
     next(error);

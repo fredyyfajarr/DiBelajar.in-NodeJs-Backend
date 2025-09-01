@@ -1,17 +1,10 @@
 import Material from '../models/Material.js';
 import mongoose from 'mongoose';
+import { buildQuery } from '../utils/queryFeatures.js';
 
 export const findMaterialsByCourseId = async (courseId, options = {}) => {
   try {
-    const sort = options.sort || '-createdAt';
-    const skip = options.skip || 0;
-    const limit = options.limit || 10;
-
-    const materials = await Material.find({ courseId: courseId })
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    return materials;
+    return await buildQuery(Material, options, { courseId: courseId });
   } catch (error) {
     console.error('Error fetching materials by course ID or slug:', error);
     throw error;
@@ -20,8 +13,7 @@ export const findMaterialsByCourseId = async (courseId, options = {}) => {
 
 export const findAllMaterials = async () => {
   try {
-    const materials = await Material.find();
-    return materials;
+    return await buildQuery(Material);
   } catch (error) {
     console.error('Error fetching all materials:', error);
     throw error;
@@ -39,6 +31,7 @@ export const findMaterialById = async (materialIdOrSlug, courseId) => {
     const material = await Material.findOne(query);
     return material;
   } catch (error) {
+    console.error('Error fetching material by ID or slug:', error);
     throw error;
   }
 };

@@ -1,4 +1,4 @@
-// File: utils/queryFeatures.js
+import mongoose from 'mongoose';
 
 /**
  * Mengurai parameter 'page' dan 'limit' dari query string
@@ -19,6 +19,25 @@ export const getPaginationOptions = (query) => {
  * @returns {string} - String untuk .sort() di Mongoose
  */
 export const getSortOptions = (query) => {
-  // Jika ada parameter sort, gunakan. Jika tidak, urutkan berdasarkan yang terbaru.
   return query.sort ? query.sort.split(',').join(' ') : '-createdAt';
+};
+
+/**
+ * Membuat query Mongoose dengan kondisi dan populasi
+ * @param {mongoose.Model} model - Model Mongoose yang akan di-query
+ * @param {object} conditions - Kondisi pencarian (misalnya, { materialId })
+ * @param {array} populate - Array opsi populasi (opsional)
+ * @returns {Promise} - Hasil query Mongoose
+ */
+export const buildQuery = async (model, conditions = {}, populate = []) => {
+  let query = model.find(conditions);
+
+  // Terapkan populasi jika ada
+  if (populate.length > 0) {
+    populate.forEach((pop) => {
+      query = query.populate(pop);
+    });
+  }
+
+  return await query.exec();
 };

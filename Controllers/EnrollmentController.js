@@ -1,8 +1,4 @@
-import * as enrollmentService from '../Services/enrollmentService.js';
-import {
-  getPaginationOptions,
-  getSortOptions,
-} from '../utils/queryFeatures.js';
+import * as enrollmentService from '../services/enrollmentService.js';
 
 export const enrollInCourse = async (req, res, next) => {
   try {
@@ -25,14 +21,9 @@ export const findAllEnrollments = async (req, res, next) => {
 
 export const findEnrollmentByUserId = async (req, res, next) => {
   try {
-    const user = req.profile;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOptions(req.query),
-    };
     const enrollments = await enrollmentService.findEnrollmentByUserId(
-      user._id,
-      options
+      req.profile._id,
+      req.query
     );
     if (!enrollments || enrollments.length === 0) {
       return res
@@ -47,14 +38,9 @@ export const findEnrollmentByUserId = async (req, res, next) => {
 
 export const findEnrollmentByCourseId = async (req, res, next) => {
   try {
-    const course = req.course;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOptions(req.query),
-    };
     const enrollments = await enrollmentService.findEnrollmentByCourseId(
-      course._id,
-      options
+      req.course._id,
+      req.query
     );
     if (!enrollments || enrollments.length === 0) {
       return res

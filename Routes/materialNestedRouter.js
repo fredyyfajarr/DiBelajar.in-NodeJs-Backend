@@ -1,6 +1,7 @@
 import express from 'express';
 import { validate } from '../middlewares/validate.js';
 import { loadMaterial } from '../middlewares/materialMiddleware.js';
+import { uploadAssignment } from '../utils/multerConfig.js';
 import {
   protect,
   authorize,
@@ -80,6 +81,7 @@ router
   .post(
     protect,
     authorize('student'),
+    uploadAssignment.single('submissionFile'),
     validate(createSubmissionSchema),
     loadMaterial,
     createSubmission

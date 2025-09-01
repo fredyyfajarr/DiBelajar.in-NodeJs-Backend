@@ -1,8 +1,4 @@
 import * as testResultService from '../services/testResultService.js';
-import {
-  getPaginationOptions,
-  getSortOptions,
-} from '../utils/queryFeatures.js';
 
 export const createTestResult = async (req, res, next) => {
   try {
@@ -24,14 +20,9 @@ export const createTestResult = async (req, res, next) => {
 
 export const getTestResultsByMaterialId = async (req, res, next) => {
   try {
-    const material = req.material;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOptions(req.query),
-    };
     const testResults = await testResultService.findTestResultsByMaterialId(
-      material._id,
-      options
+      req.material._id,
+      req.query
     );
     res.json(testResults);
   } catch (error) {
@@ -41,14 +32,9 @@ export const getTestResultsByMaterialId = async (req, res, next) => {
 
 export const getTestResultsByUserId = async (req, res, next) => {
   try {
-    const user = req.profile;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOptions(req.query),
-    };
     const testResults = await testResultService.findTestResultsByUserId(
-      user._id,
-      options
+      req.profile._id,
+      req.query
     );
     res.json(testResults);
   } catch (error) {

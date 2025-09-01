@@ -1,5 +1,6 @@
 import ForumPost from '../models/ForumPost.js';
 import sanitizeHtml from 'sanitize-html';
+import { buildQuery } from '../utils/queryFeatures.js';
 
 export const createForumPost = async (userId, materialId, text) => {
   try {
@@ -22,14 +23,7 @@ export const createForumPost = async (userId, materialId, text) => {
 
 export const findPostsByMaterialId = async (materialId, options = {}) => {
   try {
-    const sort = options.sort || '-completeAt';
-    const skip = options.skip || 0;
-    const limit = options.limit || 10;
-    const posts = await ForumPost.find({ materialId })
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    return posts;
+    return await buildQuery(ForumPost, options, { materialId });
   } catch (error) {
     console.error('Error finding posts by material ID:', error);
     throw error;
@@ -38,14 +32,7 @@ export const findPostsByMaterialId = async (materialId, options = {}) => {
 
 export const findPostsByUserId = async (userId, options = {}) => {
   try {
-    const sort = options.sort || '-completeAt';
-    const skip = options.skip || 0;
-    const limit = options.limit || 10;
-    const posts = await ForumPost.find({ userId })
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    return posts;
+    return await buildQuery(ForumPost, options, { userId });
   } catch (error) {
     console.error('Error finding posts by user ID:', error);
     throw error;

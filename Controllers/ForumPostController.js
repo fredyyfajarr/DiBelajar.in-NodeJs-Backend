@@ -1,8 +1,4 @@
 import * as forumPostService from '../services/forumPostService.js';
-import {
-  getPaginationOptions,
-  getSortOptions,
-} from '../utils/queryFeatures.js';
 
 export const createForumPost = async (req, res, next) => {
   try {
@@ -23,16 +19,14 @@ export const createForumPost = async (req, res, next) => {
 
 export const getPostsByMaterialId = async (req, res, next) => {
   try {
-    const material = req.material;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOption(req.query),
-    };
     const posts = await forumPostService.findPostsByMaterialId(
-      material._id,
-      options
+      req.material._id,
+      req.query
     );
-    res.json(posts);
+    res.status(200).json({
+      success: true,
+      data: posts,
+    });
   } catch (error) {
     next(error);
   }
@@ -40,13 +34,14 @@ export const getPostsByMaterialId = async (req, res, next) => {
 
 export const getPostsByUserId = async (req, res, next) => {
   try {
-    const user = req.profile;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOptions(req.query),
-    };
-    const posts = await forumPostService.findPostsByUserId(user._id, options);
-    res.json(posts);
+    const posts = await forumPostService.findPostsByUserId(
+      req.profile._id,
+      req.query
+    );
+    res.status(200).json({
+      success: true,
+      data: posts,
+    });
   } catch (error) {
     next(error);
   }

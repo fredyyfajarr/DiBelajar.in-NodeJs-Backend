@@ -1,18 +1,22 @@
 import * as assignmentSubmissionService from '../services/assignmentSubmissionService.js';
-import {
-  getPaginationOptions,
-  getSortOptions,
-} from '../utils/queryFeatures.js';
+
 export const createSubmission = async (req, res, next) => {
   try {
     const material = req.material;
     const userId = req.user._id;
-    const { submissionFileUrl } = req.body;
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+
+    // Buat URL yang bisa diakses publik untuk file tugas
+    const submissionFileUrl = `${req.protocol}://${req.get(
+      'host'
+    )}/uploads/assignments/${req.file.filename}`;
 
     const newSubmission = await assignmentSubmissionService.createSubmission(
       userId,
       material._id,
-      submissionFileUrl
+      submissionFileUrl // Kirim URL yang sudah jadi ke service
     );
 
     res.status(201).json(newSubmission);
@@ -23,15 +27,10 @@ export const createSubmission = async (req, res, next) => {
 
 export const getSubmissionsByMaterialId = async (req, res, next) => {
   try {
-    const material = req.material;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOptions(req.query),
-    };
     const submissions =
       await assignmentSubmissionService.findSubmissionsByMaterialId(
-        material._id,
-        options
+        req.material._id,
+        req.query
       );
     res.json(submissions);
   } catch (error) {
@@ -41,15 +40,10 @@ export const getSubmissionsByMaterialId = async (req, res, next) => {
 
 export const getSubmissionsByUserId = async (req, res, next) => {
   try {
-    const user = req.profile;
-    const options = {
-      ...getPaginationOptions(req.query),
-      sort: getSortOptions(req.query),
-    };
     const submissions =
       await assignmentSubmissionService.findSubmissionsByUserId(
-        user._id,
-        options
+        req.profile._id,
+        req.query
       );
     res.json(submissions);
   } catch (error) {

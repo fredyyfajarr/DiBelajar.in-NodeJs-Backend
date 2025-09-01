@@ -20,14 +20,7 @@ export const createSubmission = async (
 
 export const findSubmissionsByMaterialId = async (materialId, options = {}) => {
   try {
-    const sort = options.sort || '-submittedAt';
-    const skip = options.skip || 0;
-    const limit = options.limit || 10;
-    const submissions = await AssignmentSubmission.find({ materialId })
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    return submissions;
+    return await buildQuery(AssignmentSubmission, options, { materialId });
   } catch (error) {
     console.error('Error finding submissions:', error);
     throw error;
@@ -36,14 +29,7 @@ export const findSubmissionsByMaterialId = async (materialId, options = {}) => {
 
 export const findSubmissionsByUserId = async (userId, options = {}) => {
   try {
-    const sort = options.sort || '-submittedAt';
-    const skip = options.skip || 0;
-    const limit = options.limit || 10;
-    const submissions = await AssignmentSubmission.find({ userId })
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
-    return submissions;
+    return await buildQuery(AssignmentSubmission, options, { userId });
   } catch (error) {
     console.error('Error finding submissions:', error);
     throw error;
