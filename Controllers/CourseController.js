@@ -1,24 +1,10 @@
-import * as courseService from '../services/courseService.js';
+import * as courseService from '../Services/courseService.js';
 
 export const getAllCourses = async (req, res, next) => {
-  try {
-    const allCourses = await courseService.findAllCourses();
-    res.json(allCourses);
-  } catch (error) {
-    next(error);
-  }
+  res.status(200).json(res.advancedResults);
 };
 
 export const getCourseById = async (req, res, next) => {
-  // try {
-  //   const course = await courseService.findCourseById(req.params.idOrSlug);
-  //   if (!course) {
-  //     return res.status(404).json({ error: 'Course not found.' });
-  //   }
-  //   res.json(course);
-  // } catch (error) {
-  //   next(error);
-  // }
   res.json(req.course);
 };
 

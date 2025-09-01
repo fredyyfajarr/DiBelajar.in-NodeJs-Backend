@@ -1,6 +1,7 @@
 import express from 'express';
 import { validate } from '../middlewares/validate.js';
 import { loadUser } from '../middlewares/userMiddleware.js';
+import { advancedResults } from '../middlewares/advancedResults.js';
 import {
   protect,
   authorize,
@@ -23,11 +24,13 @@ import {
   updateUserSchema,
 } from '../validation/user.validation.js';
 
+import User from '../models/User.js';
+
 const router = express.Router();
 
 router
   .route('/')
-  .get(protect, authorize('admin'), getAllUsers)
+  .get(protect, authorize('admin'), advancedResults(User), getAllUsers)
   .post(protect, authorize('admin'), validate(createUserSchema), createUser);
 
 router.route('/:idOrSlug');

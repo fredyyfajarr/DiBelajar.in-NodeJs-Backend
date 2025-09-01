@@ -1,30 +1,14 @@
-// Routes/enrollmentUserRouter.js
 import express from 'express';
-import { validate } from '../middlewares/validate.js';
-import { authorize, protect } from '../middlewares/authMiddleware.js';
 import {
   findEnrollmentByUserId,
-  createEnrollment,
   removeEnrollment,
-} from '../controllers/EnrollmentController.js';
-import { createEnrollmentSchema } from '../validation/enrollment.validation.js';
+} from '../Controllers/EnrollmentController.js';
+import { loadCourse } from '../middlewares/courseMiddleware.js';
 
 const router = express.Router({ mergeParams: true });
 
-// Rute GET dan POST di bawah user
-router
-  .route('/')
-  .get(protect, findEnrollmentByUserId)
-  .post(
-    protect,
-    authorize('admin', 'instructor'),
-    validate(createEnrollmentSchema),
-    createEnrollment
-  );
+router.route('/').get(findEnrollmentByUserId);
 
-// Rute DELETE di bawah user
-router
-  .route('/:courseIdOrSlug')
-  .delete(protect, authorize('admin', 'instructor'), removeEnrollment);
+router.route('/:courseIdOrSlug').delete(loadCourse, removeEnrollment);
 
 export default router;

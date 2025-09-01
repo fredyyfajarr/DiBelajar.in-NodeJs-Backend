@@ -1,24 +1,16 @@
 import Material from '../models/Material.js';
 import mongoose from 'mongoose';
 
-const getMaterialQuery = (materialIdOrSlug, courseIdOrSlug) => {
-  let query = { courseId: courseIdOrSlug };
-  if (mongoose.Types.ObjectId.isValid(materialIdOrSlug)) {
-    query._id = materialIdOrSlug;
-  } else {
-    query.slug = materialIdOrSlug;
-  }
-  return query;
-};
-
-const getAllMaterialsByCourseQuery = (courseId) => {
-  return { courseId: courseId };
-};
-
-export const findMaterialsByCourseId = async (courseId) => {
+export const findMaterialsByCourseId = async (courseId, options = {}) => {
   try {
-    const query = getAllMaterialsByCourseQuery(courseId);
-    const materials = await Material.find(query);
+    const sort = options.sort || '-createdAt';
+    const skip = options.skip || 0;
+    const limit = options.limit || 10;
+
+    const materials = await Material.find({ courseId: courseId })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
     return materials;
   } catch (error) {
     console.error('Error fetching materials by course ID or slug:', error);
@@ -38,14 +30,19 @@ export const findAllMaterials = async () => {
 
 export const findMaterialById = async (materialIdOrSlug, courseId) => {
   try {
-    const query = getMaterialQuery(materialIdOrSlug, courseId);
+    let query = { courseId: courseId };
+    if (mongoose.Types.ObjectId.isValid(materialIdOrSlug)) {
+      query._id = materialIdOrSlug;
+    } else {
+      query.slug = materialIdOrSlug;
+    }
     const material = await Material.findOne(query);
     return material;
   } catch (error) {
-    console.error('Error fetching material by ID or slug:', error);
     throw error;
   }
 };
+
 export const createMaterial = async (newMaterialData) => {
   try {
     const newMaterial = await Material.create(newMaterialData);
@@ -69,7 +66,12 @@ export const updateMaterial = async (materialToUpdate, updateMaterialData) => {
 
 export const removeMaterial = async (materialToDelete) => {
   try {
-    await Material.findOneAndDelete(materialToDelete._id);
+    // Implementasi cascading delete untuk material
+    await AssignmentSubmission.deleteMany({ materialId: materialToDelete._id });
+    await TestResult.deleteMany({ materialId: materialToDelete._id });
+    await ForumPost.deleteMany({ materialId: materialToDelete._id });
+
+    await Material.findByIdAndDelete(materialToDelete._id);
     return materialToDelete;
   } catch (error) {
     console.error('Error removing material:', error);

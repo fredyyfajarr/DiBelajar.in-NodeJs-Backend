@@ -1,6 +1,12 @@
-import User from '../models/User.js';
-import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import User from '../models/User.js';
+
+import Enrollment from '../models/Enrollment.js';
+import AssignmentSubmission from '../models/AssignmentSubmission.js';
+import TestResult from '../models/TestResult.js';
+import ForumPost from '../models/ForumPost.js';
+import Course from '../models/Course.js';
 
 export const findAllUsers = async () => {
   try {
@@ -29,7 +35,6 @@ export const findUserById = async (idOrSlug) => {
 
 export const createUser = async (newUserData) => {
   try {
-    // Hashing password sebelum disimpan
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newUserData.password, salt);
 
@@ -43,7 +48,6 @@ export const createUser = async (newUserData) => {
 };
 export const updateUser = async (userToUpdate, updateData) => {
   try {
-    // Hashing password baru jika ada di updateData
     if (updateData.password) {
       const salt = await bcrypt.genSalt(10);
       updateData.password = await bcrypt.hash(updateData.password, salt);
@@ -60,11 +64,31 @@ export const updateUser = async (userToUpdate, updateData) => {
 };
 
 export const removeUser = async (userToDelete) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    await User.findByIdAndDelete(userToDelete._id);
+    const userId = userToDelete._id;
+
+    if (userToDelete.role === 'instructor') {
+      await Course.deleteMany({ instructorId: userId }).session(session);
+    }
+
+    await Enrollment.deleteMany({ userId: userId }).session(session);
+    await AssignmentSubmission.deleteMany({ userId: userId }).session(session);
+    await TestResult.deleteMany({ userId: userId }).session(session);
+    await ForumPost.deleteMany({ userId: userId }).session(session);
+
+    await User.findByIdAndDelete(userId).session(session);
+
+    await session.commitTransaction();
+
     return userToDelete;
   } catch (error) {
-    console.error('Error removing user:', error);
+    await session.abortTransaction();
+    console.error('Error removing user and their data:', error);
     throw error;
+  } finally {
+    session.endSession();
   }
 };

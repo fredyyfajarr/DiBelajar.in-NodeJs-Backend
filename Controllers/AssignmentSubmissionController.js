@@ -1,8 +1,8 @@
 import * as assignmentSubmissionService from '../services/assignmentSubmissionService.js';
-import * as userService from '../services/userService.js';
-import * as materialService from '../services/materialService.js';
-import * as courseService from '../services/courseService.js';
-
+import {
+  getPaginationOptions,
+  getSortOptions,
+} from '../utils/queryFeatures.js';
 export const createSubmission = async (req, res, next) => {
   try {
     const material = req.material;
@@ -24,9 +24,14 @@ export const createSubmission = async (req, res, next) => {
 export const getSubmissionsByMaterialId = async (req, res, next) => {
   try {
     const material = req.material;
+    const options = {
+      ...getPaginationOptions(req.query),
+      sort: getSortOptions(req.query),
+    };
     const submissions =
       await assignmentSubmissionService.findSubmissionsByMaterialId(
-        material._id
+        material._id,
+        options
       );
     res.json(submissions);
   } catch (error) {
@@ -36,14 +41,16 @@ export const getSubmissionsByMaterialId = async (req, res, next) => {
 
 export const getSubmissionsByUserId = async (req, res, next) => {
   try {
-    const { userIdOrSlug } = req.params;
-    const user = await userService.findUserById(userIdOrSlug);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
+    const user = req.profile;
+    const options = {
+      ...getPaginationOptions(req.query),
+      sort: getSortOptions(req.query),
+    };
     const submissions =
-      await assignmentSubmissionService.findSubmissionsByUserId(user._id);
+      await assignmentSubmissionService.findSubmissionsByUserId(
+        user._id,
+        options
+      );
     res.json(submissions);
   } catch (error) {
     next(error);

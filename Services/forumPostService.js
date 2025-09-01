@@ -15,24 +15,39 @@ export const createForumPost = async (userId, materialId, text) => {
     });
     return newPost;
   } catch (error) {
+    console.error('Error creating forum post:', error);
     throw error;
   }
 };
 
-export const findPostsByMaterialId = async (materialId) => {
+export const findPostsByMaterialId = async (materialId, options = {}) => {
   try {
-    const posts = await ForumPost.find({ materialId });
+    const sort = options.sort || '-completeAt';
+    const skip = options.skip || 0;
+    const limit = options.limit || 10;
+    const posts = await ForumPost.find({ materialId })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
     return posts;
   } catch (error) {
+    console.error('Error finding posts by material ID:', error);
     throw error;
   }
 };
 
-export const findPostsByUserId = async (userId) => {
+export const findPostsByUserId = async (userId, options = {}) => {
   try {
-    const posts = await ForumPost.find({ userId });
+    const sort = options.sort || '-completeAt';
+    const skip = options.skip || 0;
+    const limit = options.limit || 10;
+    const posts = await ForumPost.find({ userId })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
     return posts;
   } catch (error) {
+    console.error('Error finding posts by user ID:', error);
     throw error;
   }
 };

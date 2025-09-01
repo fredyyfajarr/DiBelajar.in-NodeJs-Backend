@@ -1,7 +1,8 @@
 import * as testResultService from '../services/testResultService.js';
-import * as userService from '../services/userService.js';
-import * as materialService from '../services/materialService.js';
-import * as courseService from '../services/courseService.js';
+import {
+  getPaginationOptions,
+  getSortOptions,
+} from '../utils/queryFeatures.js';
 
 export const createTestResult = async (req, res, next) => {
   try {
@@ -24,8 +25,13 @@ export const createTestResult = async (req, res, next) => {
 export const getTestResultsByMaterialId = async (req, res, next) => {
   try {
     const material = req.material;
+    const options = {
+      ...getPaginationOptions(req.query),
+      sort: getSortOptions(req.query),
+    };
     const testResults = await testResultService.findTestResultsByMaterialId(
-      material._id
+      material._id,
+      options
     );
     res.json(testResults);
   } catch (error) {
@@ -35,13 +41,14 @@ export const getTestResultsByMaterialId = async (req, res, next) => {
 
 export const getTestResultsByUserId = async (req, res, next) => {
   try {
-    const { userIdOrSlug } = req.params;
-    const user = await userService.findUserById(userIdOrSlug);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    const user = req.profile;
+    const options = {
+      ...getPaginationOptions(req.query),
+      sort: getSortOptions(req.query),
+    };
     const testResults = await testResultService.findTestResultsByUserId(
-      user._id
+      user._id,
+      options
     );
     res.json(testResults);
   } catch (error) {

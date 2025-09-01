@@ -1,12 +1,7 @@
-import * as userService from '../services/userService.js';
+import * as userService from '../Services/userService.js';
 
 export const getAllUsers = async (req, res, next) => {
-  try {
-    const allUsers = await userService.findAllUsers();
-    res.json(allUsers);
-  } catch (error) {
-    next(error);
-  }
+  res.status(200).json(res.advancedResults);
 };
 
 export const getUserById = async (req, res, next) => {

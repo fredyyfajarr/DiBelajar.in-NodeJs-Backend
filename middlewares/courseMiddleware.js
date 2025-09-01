@@ -1,5 +1,4 @@
-import mongoose from 'mongoose';
-import Course from '../models/Course.js';
+import { findCourseById } from '../Services/courseService.js'; // <-- Impor service
 
 export const loadCourse = async (req, res, next) => {
   try {
@@ -9,12 +8,8 @@ export const loadCourse = async (req, res, next) => {
       return res.status(400).json({ error: 'Course ID or slug is required' });
     }
 
-    let course;
-    if (mongoose.Types.ObjectId.isValid(id)) {
-      course = await Course.findById(id);
-    } else {
-      course = await Course.findOne({ slug: id });
-    }
+    // Delegasikan pencarian ke service, bukan query langsung
+    const course = await findCourseById(id);
 
     if (!course) {
       return res.status(404).json({ error: 'Course not found' });
