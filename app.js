@@ -42,7 +42,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://di-belajar-in.vercel.app', // Ganti dengan domain Anda
+  'https://di-belajar-in.vercel.app',
+  'http://192.168.1.100:5173', // Ganti dengan domain Anda
 ];
 
 const corsOptions = {
@@ -54,6 +55,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
+  methods: 'GET, POST, PUT, DELETE, OPTIONS',
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
@@ -89,6 +91,6 @@ if (process.env.NODE_ENV === 'development') {
 
 dotenv.config();
 connectDB();
-app.listen(PORT, () => {
-  logger.info(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  logger.info(`Server is running on http://0.0.0.0:${PORT}`);
 });
