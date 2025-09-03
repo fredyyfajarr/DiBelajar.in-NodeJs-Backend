@@ -42,7 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://di-belajar-in.vercel.app/', // Ganti dengan domain Anda
+  'https://di-belajar-in.vercel.app', // Ganti dengan domain Anda
 ];
 
 const corsOptions = {
