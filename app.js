@@ -40,8 +40,20 @@ app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://di-belajar-in.vercel.app/', // Ganti dengan domain Anda
+];
+
 const corsOptions = {
-  origin: 'http://localhost:5173', // <-- Izinkan request dari alamat frontend Anda
+  origin: function (origin, callback) {
+    // Izinkan request tanpa origin (seperti dari aplikasi mobile/Postman) atau jika origin ada di dalam daftar
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
@@ -51,15 +63,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, // Limit each IP to 100 requests per windowMs
-//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-//   message: 'Too many requests, please try again later.',
-// });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: 'Too many requests, please try again later.',
+});
 // Apply rate limiting middleware
-// app.use(limiter);
+app.use(limiter);
 
 // Routes
 app.use('/api/users', userRouter);
