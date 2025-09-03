@@ -18,7 +18,9 @@ export const createTestResult = async (userId, materialId, score, answers) => {
 
 export const findTestResultsByMaterialId = async (materialId, options = {}) => {
   try {
-    return await buildQuery(TestResult, options, { materialId });
+    const conditions = { materialId };
+    const populateOptions = [{ path: 'userId', select: 'name' }]; // <-- Tambahkan ini
+    return await buildQuery(TestResult, conditions, populateOptions);
   } catch (error) {
     console.error('Error finding test results by material ID:', error);
     throw error;

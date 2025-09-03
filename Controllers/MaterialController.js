@@ -8,18 +8,9 @@ export const getMaterialsByCourseId = async (req, res, next) => {
       req.query
     );
 
-    const totalMaterials = await Material.countDocuments({
-      courseId: course._id,
-    });
-
     res.json({
       success: true,
       count: materials.length,
-      total: totalMaterials,
-      pagination: {
-        page: options.skip / options.limit + 1,
-        limit: options.limit,
-      },
       data: materials,
     });
   } catch (error) {

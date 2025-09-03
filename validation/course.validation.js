@@ -1,36 +1,49 @@
+// validation/course.validation.js
 import Joi from 'joi';
+import mongoose from 'mongoose';
+
+const objectIdValidator = (value, helpers) => {
+  // kalau null/undefined, langsung invalid
+  if (!value) return helpers.error('any.required');
+
+  // kalau sudah ObjectId (dari JSON)
+  if (value instanceof mongoose.Types.ObjectId) {
+    return value;
+  }
+
+  // kalau string → cek valid ObjectId
+  if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
+    return value;
+  }
+
+  return helpers.error('any.invalid');
+};
 
 export const createCourseSchema = Joi.object({
-  title: Joi.string().min(3).max(50).required().messages({
-    'string.base': 'Title must be a string',
-    'string.min': 'Title must be at least 3 characters',
-    'string.max': 'Title must be at most 50 characters',
-    'any.required': 'Title is required',
+  title: Joi.string().trim().required().messages({
+    'string.empty': 'Judul wajib diisi',
   }),
-  description: Joi.string().min(10).required().messages({
-    'string.base': 'Description must be a string',
-    'string.min': 'Description must be at least 10 characters',
-    'any.required': 'Description is required',
+  description: Joi.string().trim().required().messages({
+    'string.empty': 'Deskripsi wajib diisi',
   }),
-  thumbnail: Joi.string().uri().optional().messages({
-    'string.uri': 'Thumbnail must be a valid URL',
-  }),
-  // instructorId: Joi.string().required(),
+  instructorId: Joi.alternatives()
+    .try(Joi.string(), Joi.object())
+    .custom(objectIdValidator)
+    .required()
+    .messages({
+      'any.invalid': 'InstrukturId harus ObjectId yang valid',
+      'any.required': 'Instruktur wajib dipilih',
+    }),
 });
 
 export const updateCourseSchema = Joi.object({
-  title: Joi.string().min(3).max(50).optional().messages({
-    'string.min': 'Title must be at least 3 characters',
-    'string.max': 'Title must be at most 50 characters',
-  }),
-  description: Joi.string().min(10).optional().messages({
-    'string.min': 'Description must be at least 10 characters',
-    'string.base': 'Description must be a string',
-  }),
-  thumbnail: Joi.string().uri().optional().messages({
-    'string.uri': 'Thumbnail must be a valid URL',
-  }),
-  instructorId: Joi.string().optional().messages({
-    'any.required': 'ID instruktur wajib diisi.',
-  }),
+  title: Joi.string().trim().optional(),
+  description: Joi.string().trim().optional(),
+  instructorId: Joi.alternatives()
+    .try(Joi.string(), Joi.object())
+    .custom(objectIdValidator)
+    .optional()
+    .messages({
+      'any.invalid': 'InstrukturId harus ObjectId yang valid',
+    }),
 });

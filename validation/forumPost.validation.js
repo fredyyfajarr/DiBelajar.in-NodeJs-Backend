@@ -5,4 +5,5 @@ export const createForumPostSchema = Joi.object({
     'string.base': 'Text must be a string',
     'any.required': 'Text is required',
   }),
+  parentPostId: Joi.string().optional().allow(null),
 });

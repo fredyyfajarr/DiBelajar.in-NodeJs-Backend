@@ -1,3 +1,5 @@
+// src/routes/materialNestedRouter.js
+
 import express from 'express';
 import { validate } from '../middlewares/validate.js';
 import { loadMaterial } from '../middlewares/materialMiddleware.js';
@@ -7,6 +9,7 @@ import {
   authorize,
   authorizeEnrolled,
 } from '../middlewares/authMiddleware.js';
+import { authorizeCourseOwner } from '../middlewares/ownershipMiddleware.js';
 import {
   getMaterialsByCourseId,
   createMaterial,
@@ -26,7 +29,6 @@ import {
   createForumPost,
   getPostsByMaterialId,
 } from '../controllers/ForumPostController.js';
-
 import {
   createMaterialSchema,
   updateMaterialSchema,
@@ -37,87 +39,75 @@ import { createForumPostSchema } from '../validation/forumPost.validation.js';
 
 const router = express.Router({ mergeParams: true });
 
-// GET semua materi di sebuah kursus dan POST materi baru
+// GET semua materi (Partisipan sah boleh lihat)
 router
   .route('/')
-  .get(protect, authorizeEnrolled, getMaterialsByCourseId)
+  .get(getMaterialsByCourseId)
+  // POST materi baru (Hanya admin/pemilik)
   .post(
-    protect,
     authorize('admin', 'instructor'),
+    authorizeCourseOwner,
     validate(createMaterialSchema),
     createMaterial
   );
 
-// GET, PUT, dan DELETE satu materi di dalam sebuah kursus
+// GET satu materi (Partisipan sah boleh lihat)
 router
   .route('/:materialIdOrSlug')
-  .get(protect, authorizeEnrolled, loadMaterial, getMaterialById)
+  .get(loadMaterial, getMaterialById)
+  // PUT & DELETE (Hanya admin/pemilik)
   .put(
-    protect,
     authorize('admin', 'instructor'),
+    authorizeCourseOwner,
     loadMaterial,
     validate(updateMaterialSchema),
     updateMaterial
   )
   .delete(
-    protect,
     authorize('admin', 'instructor'),
+    authorizeCourseOwner,
     loadMaterial,
     deleteMaterial
   );
 
-// Rute untuk AssignmentSubmission
-// POST /api/courses/:courseId/materials/:materialId/assignments/submit
-// GET /api/courses/:courseId/materials/:materialId/assignments
+// GET submissions (Hanya admin/pemilik)
 router
   .route('/:materialIdOrSlug/assignments')
   .get(
-    protect,
-    authorizeEnrolled,
     authorize('admin', 'instructor'),
+    authorizeCourseOwner,
     loadMaterial,
     getSubmissionsByMaterialId
   )
+  // POST submission (Hanya student)
   .post(
-    protect,
     authorize('student'),
     uploadAssignment.single('submissionFile'),
-    validate(createSubmissionSchema),
     loadMaterial,
     createSubmission
   );
 
-// Rute untuk TestResult
-// POST /api/courses/:courseId/materials/:materialId/tests/submit
-// GET /api/courses/:courseId/materials/:materialId/tests
+// GET test results (Hanya admin/pemilik)
 router
   .route('/:materialIdOrSlug/tests')
   .get(
-    protect,
     authorize('admin', 'instructor'),
+    authorizeCourseOwner,
     loadMaterial,
     getTestResultsByMaterialId
   )
+  // POST test result (Hanya student)
   .post(
-    protect,
     authorize('student'),
     loadMaterial,
     validate(createTestResultSchema),
     createTestResult
   );
 
-// Rute untuk ForumPost
-// POST /api/courses/:courseId/materials/:materialId/forum/posts
-// GET /api/courses/:courseId/materials/:materialId/forum/posts
+// GET & POST Forum (Semua partisipan sah boleh)
 router
   .route('/:materialIdOrSlug/forum/posts')
-  .get(protect, loadMaterial, getPostsByMaterialId)
-  .post(
-    protect,
-    authorize('admin', 'instructor', 'student'),
-    loadMaterial,
-    validate(createForumPostSchema),
-    createForumPost
-  );
+  .get(loadMaterial, getPostsByMaterialId)
+  .post(loadMaterial, validate(createForumPostSchema), createForumPost);
 
 export default router;

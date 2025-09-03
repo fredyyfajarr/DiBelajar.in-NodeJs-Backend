@@ -4,7 +4,8 @@ import { buildQuery } from '../utils/queryFeatures.js';
 
 export const findMaterialsByCourseId = async (courseId, options = {}) => {
   try {
-    return await buildQuery(Material, options, { courseId: courseId });
+    return await buildQuery(Material, { courseId: courseId }, ['courseId']);
+    return materials;
   } catch (error) {
     console.error('Error fetching materials by course ID or slug:', error);
     throw error;

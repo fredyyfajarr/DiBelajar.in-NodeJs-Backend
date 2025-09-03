@@ -30,7 +30,12 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(protect, authorize('admin'), advancedResults(User), getAllUsers)
+  .get(
+    protect,
+    authorize('admin'),
+    advancedResults(User, null, ['name', 'email']),
+    getAllUsers
+  )
   .post(protect, authorize('admin'), validate(createUserSchema), createUser);
 
 router.route('/:idOrSlug');

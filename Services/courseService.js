@@ -1,4 +1,8 @@
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import Course from '../models/Course.js';
 import Material from '../models/Material.js';
 import Enrollment from '../models/Enrollment.js';
@@ -6,12 +10,15 @@ import AssignmentSubmission from '../models/AssignmentSubmission.js';
 import TestResult from '../models/TestResult.js';
 import ForumPost from '../models/ForumPost.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export const findAllCourses = async () => {
   try {
-    const allCourses = await Course.find();
-    return allCourses;
+    const courses = await Course.find().populate('instructorId', 'name');
+    return courses;
   } catch (error) {
-    console.error('Error fetching courses:', error);
+    console.error('Error fetching all courses:', error);
     throw error;
   }
 };
@@ -19,15 +26,17 @@ export const findAllCourses = async () => {
 export const findCourseById = async (idOrSlug) => {
   try {
     let course;
+    // Definisikan cara populate yang lebih sederhana dan aman
+    const populateQuery = { path: 'instructorId', select: 'name' };
+
     if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
-      course = await Course.findById(idOrSlug);
+      course = await Course.findById(idOrSlug).populate(populateQuery);
     } else {
-      course = await Course.findOne({ slug: idOrSlug });
+      course = await Course.findOne({ slug: idOrSlug }).populate(populateQuery);
     }
-    console.log('Kursus yang ditemukan:', course);
     return course;
   } catch (error) {
-    console.error('Error fetching course by ID:', error);
+    console.error('Error fetching course by ID or slug:', error);
     throw error;
   }
 };
@@ -59,6 +68,35 @@ export const removeCourse = async (courseToDelete) => {
   session.startTransaction();
   try {
     const courseId = courseToDelete._id;
+
+    // --- LOGIKA BARU UNTUK HAPUS FILE ---
+    // 4. Ambil URL thumbnail dari data kursus yang akan dihapus
+    const thumbnailUrl = courseToDelete.thumbnail;
+
+    // 5. Cek apakah thumbnail bukan gambar default
+    if (thumbnailUrl && !thumbnailUrl.endsWith('default.png')) {
+      // Ekstrak path relatif dari URL (misal: /public/uploads/thumbnails/file.png)
+      const relativePath = new URL(thumbnailUrl).pathname;
+      // Buat path absolut di filesystem server
+      // path.join akan menangani separator ( / atau \ ) secara otomatis
+      // '..' digunakan untuk naik satu level dari folder 'services' ke root proyek
+      const absolutePath = path.join(__dirname, '..', relativePath);
+
+      // 6. Hapus file menggunakan fs.unlink
+      // Kita gunakan try-catch di sini untuk mencegah server crash jika file-nya tidak ada
+      try {
+        fs.unlinkSync(absolutePath);
+        console.log(`Successfully deleted thumbnail: ${absolutePath}`);
+      } catch (fileErr) {
+        console.error(
+          `Failed to delete thumbnail file, it might not exist: ${absolutePath}`,
+          fileErr
+        );
+      }
+    }
+    // --- AKHIR LOGIKA BARU ---
+
+    // Logika lama untuk menghapus data dari database (sudah benar)
     const materialsInCourse = await Material.find({
       courseId: courseId,
     }).session(session);
@@ -77,6 +115,7 @@ export const removeCourse = async (courseToDelete) => {
     await Material.deleteMany({ courseId: courseId }).session(session);
     await Enrollment.deleteMany({ courseId: courseId }).session(session);
     await Course.findByIdAndDelete(courseId).session(session);
+
     await session.commitTransaction();
     return courseToDelete;
   } catch (error) {

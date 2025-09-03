@@ -11,7 +11,7 @@ export const createSubmission = async (req, res, next) => {
     // Buat URL yang bisa diakses publik untuk file tugas
     const submissionFileUrl = `${req.protocol}://${req.get(
       'host'
-    )}/uploads/assignments/${req.file.filename}`;
+    )}/public/uploads/assignments/${req.file.filename}`;
 
     const newSubmission = await assignmentSubmissionService.createSubmission(
       userId,

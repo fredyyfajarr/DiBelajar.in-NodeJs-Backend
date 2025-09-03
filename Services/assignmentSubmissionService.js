@@ -1,4 +1,5 @@
 import AssignmentSubmission from '../models/AssignmentSubmission.js';
+import { buildQuery } from '../utils/queryFeatures.js';
 
 export const createSubmission = async (
   userId,
@@ -20,7 +21,9 @@ export const createSubmission = async (
 
 export const findSubmissionsByMaterialId = async (materialId, options = {}) => {
   try {
-    return await buildQuery(AssignmentSubmission, options, { materialId });
+    const conditions = { materialId };
+    const populateOptions = [{ path: 'userId', select: 'name' }]; // <-- Tambahkan ini
+    return await buildQuery(AssignmentSubmission, conditions, populateOptions);
   } catch (error) {
     console.error('Error finding submissions:', error);
     throw error;

@@ -1,5 +1,18 @@
+// src/models/Material.js
+
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+
+// Skema untuk pertanyaan tes tetap kita butuhkan
+const questionSchema = new mongoose.Schema({
+  questionText: { type: String, required: true },
+  options: [
+    {
+      optionText: { type: String, required: true },
+      isCorrect: { type: Boolean, required: true, default: false },
+    },
+  ],
+});
 
 const materialSchema = new mongoose.Schema({
   title: {
@@ -20,6 +33,10 @@ const materialSchema = new mongoose.Schema({
     ref: 'Course',
     required: true,
   },
+  // 'testContent' bersifat opsional. Jika kosong, materi ini tidak punya tes.
+  testContent: {
+    type: [questionSchema],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -33,7 +50,7 @@ const materialSchema = new mongoose.Schema({
 materialSchema.pre('save', async function (next) {
   if (this.isModified('title') || !this.slug) {
     let slug = slugify(this.title, { lower: true, strict: true });
-    let count = await Material.countDocuments({
+    let count = await mongoose.model('Material').countDocuments({
       slug,
       courseId: this.courseId,
     });
@@ -46,5 +63,4 @@ materialSchema.pre('save', async function (next) {
 });
 
 const Material = mongoose.model('Material', materialSchema);
-
 export default Material;

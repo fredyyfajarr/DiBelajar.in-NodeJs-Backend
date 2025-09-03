@@ -14,13 +14,14 @@ export const findAllEnrollments = async () => {
 };
 export const findEnrollmentByUserId = async (userId, options = {}) => {
   try {
-    return await buildQuery(Enrollment, options, { userId }, [
+    const populateOptions = [
       {
-        path: 'userId',
-        select: 'name email',
+        path: 'courseId',
+        // Tambahkan 'slug' dan 'thumbnail' di sini
+        select: 'title description slug thumbnail',
       },
-      { path: 'courseId', select: 'title description' },
-    ]);
+    ];
+    return await buildQuery(Enrollment, { userId: userId }, populateOptions);
   } catch (error) {
     console.error('Error fetching enrollments by user ID:', error);
     throw error;
@@ -29,13 +30,18 @@ export const findEnrollmentByUserId = async (userId, options = {}) => {
 
 export const findEnrollmentByCourseId = async (courseId, options = {}) => {
   try {
-    return await buildQuery(Enrollment, options, { courseId }, [
-      {
-        path: 'userId',
-        select: 'name email',
-      },
-      { path: 'courseId', select: 'title description' },
-    ]);
+    const conditions = { courseId: courseId };
+    const populateOptions = [{ path: 'userId', select: 'name email' }];
+    // TAMBAHKAN LOG INI
+    console.log('--- SERVICE ---');
+    console.log('Kondisi Query:', conditions);
+
+    const result = await buildQuery(Enrollment, conditions, populateOptions);
+
+    // TAMBAHKAN LOG INI UNTUK MELIHAT HASILNYA
+    console.log('Hasil dari Database:', result);
+
+    return result;
   } catch (error) {
     console.error('Error fetching enrollments by course ID:', error);
     throw error;

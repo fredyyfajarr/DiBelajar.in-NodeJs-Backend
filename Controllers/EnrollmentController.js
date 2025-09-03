@@ -19,35 +19,39 @@ export const findAllEnrollments = async (req, res, next) => {
   res.status(200).json(res.advancedResults);
 };
 
+// --- FUNGSI YANG DIPERBAIKI ---
 export const findEnrollmentByUserId = async (req, res, next) => {
   try {
     const enrollments = await enrollmentService.findEnrollmentByUserId(
       req.profile._id,
       req.query
     );
-    if (!enrollments || enrollments.length === 0) {
-      return res
-        .status(404)
-        .json({ error: 'No enrollments found for this user' });
-    }
-    res.status(200).json(enrollments);
+    // Langsung kirim hasil, meskipun array-nya kosong.
+    res.status(200).json({
+      success: true,
+      count: enrollments.length,
+      data: enrollments,
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// --- Fungsi ini sudah kita perbaiki sebelumnya, tetap disertakan ---
 export const findEnrollmentByCourseId = async (req, res, next) => {
   try {
+    console.log('--- CONTROLLER ---');
+    console.log('Mencari pendaftar untuk Course ID:', req.course._id);
+
     const enrollments = await enrollmentService.findEnrollmentByCourseId(
       req.course._id,
       req.query
     );
-    if (!enrollments || enrollments.length === 0) {
-      return res
-        .status(404)
-        .json({ error: 'No enrollments found for this course' });
-    }
-    res.status(200).json(enrollments);
+    res.status(200).json({
+      success: true,
+      count: enrollments.length,
+      data: enrollments,
+    });
   } catch (error) {
     next(error);
   }

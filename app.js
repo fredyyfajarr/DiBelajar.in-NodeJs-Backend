@@ -19,31 +19,47 @@ import courseRouter from './routes/courseRouter.js';
 import materialRouter from './routes/materialRouter.js';
 import enrollmentRouter from './routes/enrollmentRouter.js';
 import authRouter from './routes/authRouter.js';
+import statsRouter from './routes/statsRouter.js';
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+// Konfigurasi CORS yang lebih baik
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PUT, DELETE, OPTIONS'
+  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
+// Security Middleware
+app.use(helmet({ crossOriginResourcePolicy: false }));
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(compression());
+const corsOptions = {
+  origin: 'http://localhost:5173', // <-- Izinkan request dari alamat frontend Anda
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+app.use(hpp());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Security Middleware
-app.use(helmet());
-// Middleware
-app.use(compression());
-app.use(cors());
-app.use(hpp());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message: 'Too many requests, please try again later.',
-});
-// Apply rate limiting middleware
-app.use(limiter);
 app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // Limit each IP to 100 requests per windowMs
+//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+//   message: 'Too many requests, please try again later.',
+// });
+// Apply rate limiting middleware
+// app.use(limiter);
 
 // Routes
 app.use('/api/users', userRouter);
@@ -51,6 +67,7 @@ app.use('/api/courses', courseRouter);
 app.use('/api/materials', materialRouter);
 app.use('/api/enrollments', enrollmentRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/stats', statsRouter);
 
 // Error handling middleware
 app.use(errorHandler);

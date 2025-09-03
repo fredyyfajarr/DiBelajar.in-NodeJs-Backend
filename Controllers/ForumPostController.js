@@ -4,12 +4,14 @@ export const createForumPost = async (req, res, next) => {
   try {
     const material = req.material;
     const userId = req.user._id;
-    const { text } = req.body;
+    // PERBAIKAN: Ambil 'parentPostId' dari request body
+    const { text, parentPostId } = req.body;
 
     const newPost = await forumPostService.createForumPost(
       userId,
       material._id,
-      text
+      text,
+      parentPostId // Teruskan 'parentPostId' ke service
     );
     res.status(201).json(newPost);
   } catch (error) {
