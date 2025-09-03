@@ -6,13 +6,15 @@ import Enrollment from '../models/Enrollment.js';
 
 const router = express.Router();
 
-router
-  .route('/')
-  .get(
-    protect,
-    authorize('admin', 'instructor'),
-    advancedResults(Enrollment),
-    findAllEnrollments
-  );
+router.route('/').get(
+  protect,
+  authorize('admin', 'instructor'),
+  // PERBAIKAN: Tambahkan argumen kedua untuk populate
+  advancedResults(Enrollment, [
+    { path: 'userId', select: 'name email' },
+    { path: 'courseId', select: 'title' },
+  ]),
+  findAllEnrollments
+);
 
 export default router;
