@@ -23,6 +23,7 @@ import statsRouter from './routes/statsRouter.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.set('trust proxy', 1);
 // Konfigurasi CORS yang lebih baik
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
