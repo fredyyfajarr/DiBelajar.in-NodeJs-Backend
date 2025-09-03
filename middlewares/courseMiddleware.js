@@ -1,4 +1,4 @@
-import { findCourseById } from '../Services/courseService.js'; // <-- Impor service
+import { findCourseById } from '../services/courseService.js'; // <-- Impor service
 
 export const loadCourse = async (req, res, next) => {
   try {

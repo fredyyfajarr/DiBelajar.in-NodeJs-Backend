@@ -1,4 +1,4 @@
-import * as courseService from '../Services/courseService.js';
+import * as courseService from '../services/courseService.js';
 import * as materialService from '../services/materialService.js';
 import Course from '../models/Course.js';
 

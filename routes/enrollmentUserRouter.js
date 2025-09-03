@@ -2,7 +2,7 @@ import express from 'express';
 import {
   findEnrollmentByUserId,
   removeEnrollment,
-} from '../Controllers/EnrollmentController.js';
+} from '../controllers/EnrollmentController.js';
 import { loadCourse } from '../middlewares/courseMiddleware.js';
 
 const router = express.Router({ mergeParams: true });

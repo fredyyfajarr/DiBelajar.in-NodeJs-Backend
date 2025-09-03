@@ -1,4 +1,4 @@
-import { findUserById } from '../Services/userService.js'; // <-- Impor service
+import { findUserById } from '../services/userService.js'; // <-- Impor service
 
 export const loadUser = async (req, res, next) => {
   try {
