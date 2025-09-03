@@ -95,3 +95,5 @@ connectDB();
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`Server is running on http://0.0.0.0:${PORT}`);
 });
+
+export default app;
