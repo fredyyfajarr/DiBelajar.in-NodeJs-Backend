@@ -1,137 +1,79 @@
-# DiBelajar.in - REST API
+# Backend Proyek LMS "DiBelajar.in"
 
-Ini adalah backend REST API untuk platform Learning Management System (LMS) **DiBelajar.in**. Dibangun menggunakan Node.js, Express, dan MongoDB dengan fokus pada keamanan, skalabilitas, dan praktik arsitektur modern.
-
----
-
-## ✨ Fitur
-
-### Arsitektur & Performa
-- **Arsitektur Berlapis**: Pemisahan tanggung jawab yang jelas antara `Router`, `Middleware`, `Controller`, `Service`, dan `Model`.
-- **Entity-Loading Middleware**: Pola `loadCourse`, `loadMaterial`, dan `loadUser` untuk mengurangi query database yang berulang, menyederhanakan controller, dan membersihkan kode.
-- **Advanced Results**: Middleware tunggal yang kuat untuk menangani **Pagination**, **Filtering**, dan **Sorting** secara konsisten di semua endpoint daftar.
-- **Cascading Deletes**: Menjaga integritas data dengan menghapus semua data turunan (materi, pendaftaran, dll.) saat entitas induk (kursus, pengguna) dihapus, menggunakan transaksi Mongoose.
-
-### Keamanan (Hardening)
-- **Autentikasi & Otorisasi Lengkap**:
-  - Sistem **Login**, **Register**, dan **Logout** berbasis **JWT (JSON Web Tokens)**.
-  - **Otorisasi Berbasis Peran** (`admin`, `instructor`, `student`).
-  - **Otorisasi Berbasis Kepemilikan** (pengguna hanya bisa mengubah datanya sendiri).
-  - **Otorisasi Kondisional** (hanya siswa yang terdaftar yang bisa mengakses materi kursus).
-- **Fitur Lupa & Reset Password**: Alur yang aman menggunakan token sekali pakai yang di-hash dan dikirim melalui email.
-- **Perlindungan Terhadap Serangan Umum**:
-  - **Rate Limiting** untuk mencegah serangan brute-force dan DoS.
-  - **Security Headers** otomatis menggunakan **Helmet**.
-  - **CORS** untuk interaksi yang aman dengan frontend.
-  - Perlindungan dari **HTTP Parameter Pollution** menggunakan `hpp`.
-
-### Fungsionalitas Inti LMS
-- **Manajemen Pengguna**: CRUD (Create, Read, Update, Delete) penuh untuk manajemen pengguna.
-- **Manajemen Kursus & Materi**: Instruktur dan Admin dapat mengelola kursus dan materinya.
-- **Sistem Pendaftaran (Enrollment)**: Siswa dapat mendaftar (enroll) dan membatalkan pendaftaran (un-enroll) dari kursus.
-- **File Uploads**: Penanganan unggahan file sungguhan menggunakan **Multer** untuk *thumbnail* kursus dan *submission* tugas.
-- **Fitur Interaktif**: Endpoint untuk *submission* tugas, hasil tes, dan forum diskusi per materi.
-
-### Development & Produksi
-- **Logging Terstruktur**: Menggunakan **Winston** untuk mencatat jejak audit dan error ke file, dengan format yang berbeda untuk development dan produksi.
-- **Manajemen Environment Variable**: Konfigurasi yang aman dan terpisah untuk development dan produksi menggunakan `dotenv`.
-- **HTTP Request Logging**: Menggunakan **morgan** untuk logging request yang informatif selama development.
+Ini adalah bagian backend dari aplikasi Learning Management System (LMS) "DiBelajar.in". Dibangun dengan stack MERN (MongoDB, Express.js, React, Node.js), backend ini berfungsi sebagai REST API yang menangani semua logika bisnis, manajemen data, dan otentikasi pengguna.
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
+### ✨ Fitur Utama
 
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB dengan Mongoose ODM
-- **Autentikasi**: JSON Web Token (JWT), bcrypt.js
-- **File Uploads**: Multer
-- **Email**: Nodemailer
-- **Validasi**: Joi
-- **Keamanan & Middleware**: Helmet, express-rate-limit, hpp, cors, compression
-- **Logging**: Winston, morgan (dev)
-- **Lainnya**: dotenv, nodemon
+* 🔐 **Otentikasi & Otorisasi**: Sistem login, register, dan lupa password berbasis JWT dengan role-based access control (Admin, Instruktur, Student).
+* 📚 **Manajemen Kursus**: Operasi CRUD (Create, Read, Update, Delete) penuh untuk kursus dan materi pembelajaran.
+* 👥 **Manajemen Pengguna**: Admin dapat mengelola semua pengguna di dalam sistem.
+* 📂 **Upload File**: Menangani upload file untuk *thumbnail* kursus dan pengumpulan tugas mahasiswa menggunakan Multer.
+* 📝 **Fitur Interaktif**: Logika untuk pendaftaran kursus (*enrollment*), penyimpanan hasil tes, dan sistem forum diskusi berantai (*threaded*).
+* 📊 **Statistik**: Endpoint khusus untuk admin guna menampilkan statistik dasbor (total pengguna, kursus, dll).
+* 🔍 **Pencarian & Filter**: Middleware kustom untuk menangani pencarian, paginasi, dan filter data di berbagai *endpoint*.
+* 🛡️ **Keamanan**: Validasi input menggunakan Joi dan penanganan error yang terpusat.
 
 ---
 
-## 🚀 Instalasi & Setup Lokal
+### 💻 Teknologi yang Digunakan
 
-Ikuti langkah-langkah berikut untuk menjalankan proyek ini di lingkungan lokal Anda.
+* **Runtime**: Node.js
+* **Framework**: Express.js
+* **Database**: MongoDB dengan Mongoose ODM
+* **Otentikasi**: JSON Web Token (JWT), Bcrypt
+* **Validasi**: Joi
+* **Upload File**: Multer
+* **Lainnya**: `dotenv`, `winston` (untuk logging), `nodemailer` (untuk email)
 
-### **Prasyarat**
-- Node.js (v16 atau lebih tinggi)
-- npm / yarn
-- MongoDB (lokal atau URI dari MongoDB Atlas)
-- Postman
+---
 
-### **Langkah-langkah**
+### 🚀 Instalasi dan Setup
 
-1.  **Clone repositori ini:**
+1.  **Clone repository ini:**
     ```bash
-    git clone [https://github.com/URL_REPO_ANDA/dibelajarin-api.git](https://github.com/URL_REPO_ANDA/dibelajarin-api.git)
-    cd dibelajarin-api
+    git clone [https://github.com/NAMA_USER_ANDA/proyek-lms-backend.git](https://github.com/NAMA_USER_ANDA/proyek-lms-backend.git)
+    cd proyek-lms-backend
     ```
 
-2.  **Install semua dependensi:**
+2.  **Install dependencies:**
     ```bash
     npm install
     ```
 
-3.  **Buat folder untuk file upload:**
-    Di dalam folder root proyek, buat struktur folder berikut secara manual:
-    ```
-    public/
-    └── uploads/
-        ├── assignments/
-        └── thumbnails/
-    ```
-
-4.  **Buat file `.env`:**
-    Buat file bernama `.env` di folder root dan isi dengan konfigurasi Anda. Gunakan template di bawah ini.
+3.  **Buat file `.env`** di dalam folder root `backend`. Salin konten dari `.env.example` di bawah dan sesuaikan nilainya.
 
     ```env
-    # --- Konfigurasi Umum ---
-    NODE_ENV=development
-    PORT=5000
+    # Port Server
+    PORT=3000
 
-    # --- Database ---
-    MONGODB_URI="mongodb+srv://user:password@cluster.mongodb.net/database_name"
+    # Koneksi MongoDB
+    MONGODB_URI=mongodb://localhost:27017/lms_db
 
-    # --- Autentikasi ---
-    JWT_SECRET="kunci_rahasia_anda_yang_sangat_panjang_dan_aman"
+    # JSON Web Token
+    JWT_SECRET=rahasia-jwt-anda-yang-sangat-panjang
 
-    # --- Konfigurasi Email (gunakan kredensial Mailtrap untuk development) ---
-    EMAIL_HOST="smtp.mailtrap.io"
+    # Konfigurasi Nodemailer (contoh menggunakan Mailtrap)
+    EMAIL_HOST=smtp.mailtrap.io
     EMAIL_PORT=2525
-    EMAIL_USERNAME="your_mailtrap_username"
-    EMAIL_PASSWORD="your_mailtrap_password"
-    EMAIL_FROM="DiBelajar.in <noreply@dibelajarin.in>"
+    EMAIL_USERNAME=username_mailtrap
+    EMAIL_PASSWORD=password_mailtrap
+    EMAIL_FROM=noreply@dibelajar.in
     ```
 
-5.  **Jalankan server:**
-    * Untuk mode development dengan auto-reload (menggunakan nodemon):
-      ```bash
-      npm run dev
-      ```
-    * Untuk mode produksi:
-      ```bash
-      npm start
-      ```
-    Server akan berjalan di `http://localhost:5000` (atau port yang Anda tentukan).
+4.  **Jalankan server development:**
+    ```bash
+    npm run dev
+    ```
+    Server akan berjalan di `http://localhost:3000`.
 
 ---
-## 📚 Ringkasan API Endpoints
 
-Berikut adalah beberapa *endpoint* utama. Untuk detail lengkap, silakan impor koleksi Postman yang tersedia.
+###  API Endpoints Utama
 
-| Aksi | Metode | Endpoint | Akses |
-| :--- | :--- | :--- | :--- |
-| Registrasi User | `POST` | `/api/auth/register`| Publik |
-| Login User | `POST`| `/api/auth/login` | Publik |
-| Lupa Password | `POST`| `/api/auth/forgot-password` | Publik |
-| Melihat Semua Kursus | `GET` | `/api/courses` | Publik |
-| Membuat Kursus | `POST` | `/api/courses` | Admin, Instructor |
-| Mendaftar ke Kursus | `POST`| `/api/courses/:id/enroll` | Login (Semua Peran) |
-| Mengedit Profil Sendiri| `PUT` | `/api/users/:myId` | Pemilik Akun |
-| Menghapus User Lain | `DELETE`| `/api/users/:userId`| Admin |
-| Melihat Materi Kursus | `GET` | `/api/courses/:id/materials` | Terdaftar di Kursus |
-| Submit Tugas | `POST` | `/api/courses/:id/materials/:id/assignments` | Student (Terdaftar) |
+* `/api/auth`: Rute untuk registrasi, login, logout, dan lupa password.
+* `/api/users`: Rute untuk manajemen pengguna (CRUD oleh Admin).
+* `/api/courses`: Rute untuk manajemen kursus dan materi.
+* `/api/enrollments`: Rute untuk manajemen pendaftaran kursus.
+* `/api/stats`: Rute untuk statistik dasbor admin.
