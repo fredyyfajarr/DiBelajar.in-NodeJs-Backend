@@ -48,15 +48,25 @@ const materialSchema = new mongoose.Schema({
 });
 
 materialSchema.pre('save', async function (next) {
-  if (this.isModified('title') || !this.slug) {
+  // Hanya jalankan jika judul dimodifikasi atau ini adalah dokumen baru
+  if (this.isModified('title') || this.isNew) {
     let slug = slugify(this.title, { lower: true, strict: true });
-    let count = await mongoose.model('Material').countDocuments({
-      slug,
+
+    // Buat query untuk mencari slug yang sama di kursus yang sama,
+    // TAPI KECUALIKAN DOKUMEN INI (jika sudah ada di database)
+    const query = {
+      slug: slug,
       courseId: this.courseId,
-    });
-    if (count > 0) {
-      slug += `-${slug}-${count + 1}`;
+      _id: { $ne: this._id }, // <-- Kunci perbaikannya ada di sini
+    };
+
+    const existingMaterial = await mongoose.model('Material').findOne(query);
+
+    // Jika ditemukan slug yang sama pada materi lain, tambahkan timestamp agar unik
+    if (existingMaterial) {
+      slug = `${slug}-${Date.now()}`;
     }
+
     this.slug = slug;
   }
   next();
