@@ -1,14 +1,8 @@
-// src/routes/materialNestedRouter.js
-
 import express from 'express';
 import { validate } from '../middlewares/validate.js';
 import { loadMaterial } from '../middlewares/materialMiddleware.js';
 import { uploadAssignment } from '../utils/multerConfig.js';
-import {
-  protect,
-  authorize,
-  authorizeEnrolled,
-} from '../middlewares/authMiddleware.js';
+import { authorize } from '../middlewares/authMiddleware.js';
 import { authorizeCourseOwner } from '../middlewares/ownershipMiddleware.js';
 import {
   getMaterialsByCourseId,
@@ -29,21 +23,20 @@ import {
   createForumPost,
   getPostsByMaterialId,
 } from '../controllers/ForumPostController.js';
+import { updateUserProgress } from '../controllers/EnrollmentController.js'; // 1. Impor controller progress
 import {
   createMaterialSchema,
   updateMaterialSchema,
 } from '../validation/material.validation.js';
-import { createSubmissionSchema } from '../validation/assignmentSubmission.validation.js';
 import { createTestResultSchema } from '../validation/testResult.validation.js';
 import { createForumPostSchema } from '../validation/forumPost.validation.js';
 
 const router = express.Router({ mergeParams: true });
 
-// GET semua materi (Partisipan sah boleh lihat)
+// GET semua materi & POST materi baru
 router
   .route('/')
   .get(getMaterialsByCourseId)
-  // POST materi baru (Hanya admin/pemilik)
   .post(
     authorize('admin', 'instructor'),
     authorizeCourseOwner,
@@ -51,11 +44,10 @@ router
     createMaterial
   );
 
-// GET satu materi (Partisipan sah boleh lihat)
+// GET, PUT, DELETE satu materi
 router
   .route('/:materialIdOrSlug')
   .get(loadMaterial, getMaterialById)
-  // PUT & DELETE (Hanya admin/pemilik)
   .put(
     authorize('admin', 'instructor'),
     authorizeCourseOwner,
@@ -70,7 +62,7 @@ router
     deleteMaterial
   );
 
-// GET submissions (Hanya admin/pemilik)
+// GET & POST submissions
 router
   .route('/:materialIdOrSlug/assignments')
   .get(
@@ -79,7 +71,6 @@ router
     loadMaterial,
     getSubmissionsByMaterialId
   )
-  // POST submission (Hanya student)
   .post(
     authorize('student'),
     uploadAssignment.single('submissionFile'),
@@ -87,7 +78,7 @@ router
     createSubmission
   );
 
-// GET test results (Hanya admin/pemilik)
+// GET & POST test results
 router
   .route('/:materialIdOrSlug/tests')
   .get(
@@ -96,7 +87,6 @@ router
     loadMaterial,
     getTestResultsByMaterialId
   )
-  // POST test result (Hanya student)
   .post(
     authorize('student'),
     loadMaterial,
@@ -104,10 +94,18 @@ router
     createTestResult
   );
 
-// GET & POST Forum (Semua partisipan sah boleh)
+// GET & POST Forum
 router
   .route('/:materialIdOrSlug/forum/posts')
   .get(loadMaterial, getPostsByMaterialId)
   .post(loadMaterial, validate(createForumPostSchema), createForumPost);
+
+// 2. TAMBAHKAN RUTE INI
+// PUT untuk update progress
+router.route('/:materialIdOrSlug/progress').put(
+  authorize('student'), // Hanya student yang bisa update progress-nya sendiri
+  loadMaterial, // Pastikan material dimuat
+  updateUserProgress
+);
 
 export default router;

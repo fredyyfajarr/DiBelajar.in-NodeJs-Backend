@@ -12,11 +12,20 @@ export const getCourseAndMaterialsById = async (req, res, next) => {
     const course = req.course; // Diambil dari middleware loadCourse
     const materials = await materialService.findMaterialsByCourseId(course._id);
 
+    let enrollment = null;
+    if (req.user) {
+      enrollment = await Enrollment.findOne({
+        userId: req.user._id,
+        courseId: course._id,
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: {
         course,
         materials,
+        enrollment,
       },
     });
   } catch (error) {

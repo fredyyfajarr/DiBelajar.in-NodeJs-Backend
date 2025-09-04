@@ -13,7 +13,6 @@ import { authorizeCourseOwner } from '../middlewares/ownershipMiddleware.js';
 import { uploadThumbnail } from '../utils/multerConfig.js';
 import {
   getAllCourses,
-  getMyCourses,
   getCourseAndMaterialsById,
   createCourse,
   updateCourse,
