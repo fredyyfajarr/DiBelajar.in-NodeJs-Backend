@@ -1,5 +1,3 @@
-// src/routes/courseRouter.js
-
 import express from 'express';
 import {
   protect,
@@ -47,7 +45,7 @@ router
 
 router
   .route('/:idOrSlug')
-  .get(loadCourse, getCourseAndMaterialsById)
+  .get(populateUser, loadCourse, getCourseAndMaterialsById)
   .put(
     protect,
     authorize('admin', 'instructor'),

@@ -1,6 +1,7 @@
 import * as courseService from '../services/courseService.js';
 import * as materialService from '../services/materialService.js';
 import Course from '../models/Course.js';
+import Enrollment from '../models/Enrollment.js';
 
 export const getAllCourses = async (req, res, next) => {
   res.status(200).json(res.advancedResults);
