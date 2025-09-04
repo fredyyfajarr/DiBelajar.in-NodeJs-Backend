@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 
-import Enrollment from '../models/Enrollment.js';
+import { Enrollment } from '../models/Enrollment.js';
 import AssignmentSubmission from '../models/AssignmentSubmission.js';
 import TestResult from '../models/TestResult.js';
 import ForumPost from '../models/ForumPost.js';
