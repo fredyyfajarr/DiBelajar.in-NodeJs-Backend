@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+// Di file: models/Enrollment.js
 
 const materialProgressSchema = new mongoose.Schema({
   materialId: {
@@ -8,24 +8,8 @@ const materialProgressSchema = new mongoose.Schema({
   },
   hasCompletedTest: { type: Boolean, default: false },
   hasSubmittedAssignment: { type: Boolean, default: false },
-  hasParticipatedInForum: { type: Boolean, default: false },
-  isCompleted: { type: Boolean, default: false }, // Status materi selesai
+  // --- UBAH BARIS INI ---
+  forumPostCount: { type: Number, default: 0 }, // Ganti dari hasParticipatedInForum
+  // --- ---
+  isCompleted: { type: Boolean, default: false },
 });
-
-const enrollmentSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  courseId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course',
-    required: true,
-  },
-  progress: [materialProgressSchema], // Tambahkan ini
-});
-
-const Enrollment = mongoose.model('Enrollment', enrollmentSchema);
-
-export default Enrollment;

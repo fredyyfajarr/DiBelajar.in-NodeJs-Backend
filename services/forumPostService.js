@@ -1,5 +1,8 @@
 import ForumPost from '../models/ForumPost.js';
 import sanitizeHtml from 'sanitize-html';
+import Enrollment from '../models/Enrollment.js'; // 1. Impor model Enrollment
+import Course from '../models/Course.js'; // Impor Course untuk menemukan courseId
+import Material from '../models/Material.js'; // Impor Material untuk menemukan courseId
 
 // Kita tidak lagi butuh buildQuery untuk findPostsByMaterialId karena populasinya kompleks
 
@@ -22,10 +25,6 @@ export const createForumPost = async (
       parentPostId,
     };
 
-    // TAMBAHKAN LOG INI UNTUK MELIHAT DATA FINAL
-    console.log('--- SERVICE ---');
-    console.log('Data yang akan disimpan ke DB:', newPostData);
-
     let newPost = await ForumPost.create(newPostData);
 
     if (parentPostId) {
@@ -33,6 +32,19 @@ export const createForumPost = async (
         $push: { replies: newPost._id },
       });
     }
+
+    // --- LOGIKA BARU: UPDATE PROGRESS OTOMATIS ---
+    // Cari courseId dari materialId
+    const material = await Material.findById(materialId);
+    if (material) {
+      const courseId = material.courseId;
+      // Cari enrollment dan update
+      await Enrollment.updateOne(
+        { userId, courseId, 'progress.materialId': materialId },
+        { $inc: { 'progress.$.forumPostCount': 1 } }
+      );
+    }
+    // --- AKHIR LOGIKA BARU ---
 
     newPost = await newPost.populate({ path: 'userId', select: 'name' });
 

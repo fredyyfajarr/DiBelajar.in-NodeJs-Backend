@@ -103,7 +103,7 @@ export const updateUserProgress = async (req, res, next) => {
 
     if (step === 'test') materialProgress.hasCompletedTest = true;
     if (step === 'assignment') materialProgress.hasSubmittedAssignment = true;
-    if (step === 'forum') materialProgress.hasParticipatedInForum = true;
+    // if (step === 'forum') materialProgress.hasParticipatedInForum = true;
     if (step === 'completion') materialProgress.isCompleted = true;
 
     await enrollment.save();
