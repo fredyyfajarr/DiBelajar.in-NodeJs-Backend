@@ -55,16 +55,16 @@ materialSchema.pre('save', async function (next) {
     // Buat query untuk mencari slug yang sama di kursus yang sama,
     // TAPI KECUALIKAN DOKUMEN INI (jika sudah ada di database)
     const query = {
-      slug: slug,
+      slug: new RegExp(`^${slug}`),
       courseId: this.courseId,
       _id: { $ne: this._id }, // <-- Kunci perbaikannya ada di sini
     };
 
-    const existingMaterial = await mongoose.model('Material').findOne(query);
+    const count = await mongoose.model('Material').countDocuments(query);
 
-    // Jika ditemukan slug yang sama pada materi lain, tambahkan timestamp agar unik
-    if (existingMaterial) {
-      slug = `${slug}-${Date.now()}`;
+    // Jika ditemukan slug yang sama pada materi lain, tambahkan angka unik
+    if (count > 0) {
+      slug = `${slug}-${count + 1}`;
     }
 
     this.slug = slug;
