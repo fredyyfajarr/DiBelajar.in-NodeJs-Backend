@@ -7,8 +7,6 @@ import compression from 'compression';
 import cors from 'cors';
 import hpp from 'hpp';
 import morgan from 'morgan';
-import path from 'path';
-import { fileURLToPath } from 'url';
 // DB Connect
 import connectDB from './config/db.js';
 // Error Handler
@@ -60,10 +58,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(hpp());
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use('/public', express.static(path.join(__dirname, 'public')));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
