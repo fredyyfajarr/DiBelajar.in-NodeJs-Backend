@@ -16,20 +16,23 @@ cloudinary.config({
 const storageThumbnails = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'dibelajarin/thumbnails', // Nama folder di Cloudinary untuk menyimpan thumbnail
+    folder: 'dibelajarin/thumbnails',
     allowed_formats: ['jpeg', 'jpg', 'png'],
-    transformation: [{ width: 600, height: 400, crop: 'limit' }], // Contoh: resize gambar saat upload
+    transformation: [{ width: 600, height: 400, crop: 'limit' }],
   },
 });
 
+// --- PERBAIKAN DI SINI ---
 // Konfigurasi penyimpanan untuk TUGAS SISWA di Cloudinary
 const storageAssignments = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'dibelajarin/assignments', // Nama folder di Cloudinary untuk menyimpan tugas
-    // Biarkan Cloudinary mendeteksi format file secara otomatis
+    folder: 'dibelajarin/assignments',
+    // Secara eksplisit izinkan format file yang umum untuk tugas
+    allowed_formats: ['zip', 'pdf', 'doc', 'docx', 'txt', 'rar'],
   },
 });
+// --- AKHIR PERBAIKAN ---
 
 export const uploadThumbnail = multer({ storage: storageThumbnails });
 export const uploadAssignment = multer({ storage: storageAssignments });
