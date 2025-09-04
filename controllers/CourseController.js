@@ -51,13 +51,9 @@ export const createCourse = async (req, res, next) => {
     // courseData.instructorId = req.user._id;
     courseData.instructorId = req.body.instructorId || req.user._id;
     if (req.file) {
-      courseData.thumbnail = `${req.protocol}://${req.get(
-        'host'
-      )}/public/uploads/thumbnails/${req.file.filename}`;
+      courseData.thumbnail = req.file.path;
     } else {
-      courseData.thumbnail = `${req.protocol}://${req.get(
-        'host'
-      )}/public/uploads/default.png`;
+      courseData.thumbnail = `https://placehold.co/600x400/7c3aed/white?text=DiBelajar.in`;
     }
     // courseData.instructorId = req.user._id;
     const newCourse = await courseService.createCourse(courseData);
@@ -72,9 +68,7 @@ export const updateCourse = async (req, res, next) => {
     const updateData = { ...req.body };
 
     if (req.file) {
-      updateData.thumbnail = `${req.protocol}://${req.get(
-        'host'
-      )}/public/uploads/thumbnails/${req.file.filename}`;
+      updateData.thumbnail = req.file.path;
     }
 
     const updatedCourse = await courseService.updateCourse(

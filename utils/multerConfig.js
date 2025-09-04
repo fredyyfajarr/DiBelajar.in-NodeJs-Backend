@@ -1,68 +1,35 @@
 import multer from 'multer';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import dotenv from 'dotenv';
 
-// --- KONFIGURASI UNTUK THUMBNAIL KURSUS (YANG SUDAH ADA) ---
-const storageThumbnails = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/uploads/thumbnails/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, 'thumbnail-' + uniqueSuffix + path.extname(file.originalname));
-  },
+dotenv.config();
+
+// Konfigurasi Cloudinary dengan kredensial dari .env
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const fileFilterImages = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png/;
-  const mimetype = allowedTypes.test(file.mimetype);
-  const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase()
-  );
-
-  if (mimetype && extname) {
-    return cb(null, true);
-  }
-  cb('Error: File type not allowed! Only JPEG, JPG, and PNG are allowed.');
-};
-
-export const uploadThumbnail = multer({
-  storage: storageThumbnails,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
-  fileFilter: fileFilterImages,
-});
-
-// --- KONFIGURASI BARU UNTUK SUBMISSION TUGAS ---
-const storageAssignments = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/uploads/assignments/');
-  },
-  filename: function (req, file, cb) {
-    // Kita gunakan nama user dan nama file asli agar lebih mudah diidentifikasi
-    const userSlug = req.user.slug || 'user';
-    const uniqueSuffix = Date.now();
-    cb(null, `${userSlug}-${uniqueSuffix}-${file.originalname}`);
+// Konfigurasi penyimpanan untuk THUMBNAIL KURSUS di Cloudinary
+const storageThumbnails = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'dibelajarin/thumbnails', // Nama folder di Cloudinary untuk menyimpan thumbnail
+    allowed_formats: ['jpeg', 'jpg', 'png'],
+    transformation: [{ width: 600, height: 400, crop: 'limit' }], // Contoh: resize gambar saat upload
   },
 });
 
-const fileFilterAssignments = (req, file, cb) => {
-  // Izinkan tipe file yang umum untuk dokumen
-  const allowedTypes = /pdf|doc|docx|txt|zip|rar/;
-  const mimetype = allowedTypes.test(file.mimetype);
-  const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase()
-  );
-
-  if (mimetype || extname) {
-    // Cukup salah satu cocok
-    return cb(null, true);
-  }
-  cb(
-    'Error: File type not allowed! Only PDF, DOC, DOCX, TXT, ZIP, RAR are allowed.'
-  );
-};
-
-export const uploadAssignment = multer({
-  storage: storageAssignments,
-  limits: { fileSize: 10 * 1024 * 1024 }, // Batas lebih besar, misal 10MB
-  fileFilter: fileFilterAssignments,
+// Konfigurasi penyimpanan untuk TUGAS SISWA di Cloudinary
+const storageAssignments = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'dibelajarin/assignments', // Nama folder di Cloudinary untuk menyimpan tugas
+    // Biarkan Cloudinary mendeteksi format file secara otomatis
+  },
 });
+
+export const uploadThumbnail = multer({ storage: storageThumbnails });
+export const uploadAssignment = multer({ storage: storageAssignments });
