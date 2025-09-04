@@ -8,26 +8,6 @@
   ],
   "routes": [
     {
-      "src": "/api/courses",
-      "methods": ["POST", "PUT"],
-      "dest": "app.js",
-      "config": {
-        "helpers": {
-          "bodyParser": false
-        }
-      }
-    },
-    {
-      "src": "/api/courses/(.*)/materials/(.*)/assignments",
-      "methods": ["POST"],
-      "dest": "app.js",
-      "config": {
-        "helpers": {
-          "bodyParser": false
-        }
-      }
-    },
-    {
       "src": "/api/(.*)",
       "dest": "app.js"
     }
