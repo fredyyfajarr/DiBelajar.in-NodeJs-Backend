@@ -26,6 +26,17 @@ const courseSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    // --- TAMBAHKAN DUA FIELD DI BAWAH INI ---
+    averageRating: {
+      type: Number,
+      min: [1, 'Rating minimal 1'],
+      max: [5, 'Rating maksimal 5'],
+      default: 0,
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

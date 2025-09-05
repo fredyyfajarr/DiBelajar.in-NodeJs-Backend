@@ -161,3 +161,41 @@ export const getCertificateData = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Get a single student's progress in a specific course
+// @route   GET /api/courses/:courseId/enrollments/:userId
+export const getStudentProgressInCourse = async (req, res, next) => {
+  try {
+    const { courseIdOrSlug, userId } = req.params;
+
+    // Middleware loadCourse sudah menyediakan req.course
+    const enrollment = await Enrollment.findOne({
+      courseId: req.course._id,
+      userId: userId,
+    }).populate({
+      path: 'progress.materialId', // Populasi detail materi di dalam progress
+      select: 'title description', // Hanya ambil judul dan deskripsi
+    });
+
+    if (!enrollment) {
+      return res
+        .status(404)
+        .json({ error: 'Data pendaftaran siswa tidak ditemukan.' });
+    }
+
+    // Kita juga perlu mengambil daftar semua materi untuk perbandingan
+    const allMaterialsInCourse = await Material.find({
+      courseId: req.course._id,
+    }).select('title');
+
+    res.status(200).json({
+      success: true,
+      data: {
+        enrollment,
+        allMaterialsInCourse,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
