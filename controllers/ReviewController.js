@@ -1,4 +1,4 @@
-import Review from '../models/Review.js';
+import Review from '../models/Rewiew.js';
 import Enrollment from '../models/Enrollment.js';
 
 // @desc    Get reviews for a course
