@@ -16,7 +16,10 @@ import {
   updateCourse,
   deleteCourse,
 } from '../controllers/CourseController.js';
-import { enrollInCourse } from '../controllers/EnrollmentController.js';
+import {
+  enrollInCourse,
+  getCertificateData,
+} from '../controllers/EnrollmentController.js';
 import materialNestedRouter from './materialNestedRouter.js';
 import enrollmentCourseRouter from './enrollmentCourseRouter.js';
 import {
@@ -66,6 +69,13 @@ router
 router
   .route('/:idOrSlug/enrollments')
   .post(protect, loadCourse, enrollInCourse);
+
+// --- 2. TAMBAHKAN BLOK KODE DI BAWAH INI SEBELUM "export default router" ---
+router.route('/:idOrSlug/certificate-data').get(
+  protect, // Pastikan pengguna sudah login
+  loadCourse, // Dapatkan data kursus dari URL
+  getCertificateData // Panggil controller untuk mengambil data sertifikat
+);
 
 // --- PERUBAHAN UTAMA DI BLOK INI ---
 router.use(

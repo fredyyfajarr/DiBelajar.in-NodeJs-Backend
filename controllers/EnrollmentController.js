@@ -125,3 +125,32 @@ export const updateUserProgress = async (req, res, next) => {
     next(error);
   }
 };
+
+// --- TAMBAHKAN FUNGSI BARU DI BAWAH INI ---
+export const getCertificateData = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const courseId = req.course._id;
+
+    const enrollment = await Enrollment.findOne({ userId, courseId });
+
+    // Cek apakah siswa terdaftar dan sudah menyelesaikan kursus
+    if (!enrollment || !enrollment.completedAt) {
+      return res.status(403).json({
+        error: 'Sertifikat tidak tersedia. Kursus belum selesai.',
+      });
+    }
+
+    // Kirim data yang dibutuhkan untuk sertifikat
+    res.status(200).json({
+      success: true,
+      data: {
+        studentName: req.user.name,
+        courseTitle: req.course.title,
+        completionDate: enrollment.completedAt,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
