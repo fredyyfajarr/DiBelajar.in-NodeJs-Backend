@@ -22,6 +22,7 @@ import {
 } from '../controllers/EnrollmentController.js';
 import materialNestedRouter from './materialNestedRouter.js';
 import enrollmentCourseRouter from './enrollmentCourseRouter.js';
+import reviewRouter from './reviewRouter.js';
 import {
   createCourseSchema,
   updateCourseSchema,
@@ -95,5 +96,7 @@ router.use(
   authorizeCourseOwner,
   enrollmentCourseRouter
 );
+
+router.use('/:courseIdOrSlug/reviews', reviewRouter);
 
 export default router;
