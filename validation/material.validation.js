@@ -21,7 +21,14 @@ export const createMaterialSchema = Joi.object({
 });
 
 export const updateMaterialSchema = Joi.object({
-  title: Joi.string().optional(),
-  description: Joi.string().optional(),
+  title: Joi.string().trim().optional(), // Tambahkan .trim()
+  description: Joi.string().trim().optional(), // Tambahkan .trim()
   testContent: Joi.array().items(questionSchema).optional(),
+  // PERBAIKAN: Secara eksplisit larang field lain yang tidak seharusnya dikirim
+  _id: Joi.any().strip(),
+  courseId: Joi.any().strip(),
+  slug: Joi.any().strip(),
+  createdAt: Joi.any().strip(),
+  updatedAt: Joi.any().strip(),
+  __v: Joi.any().strip(),
 });
