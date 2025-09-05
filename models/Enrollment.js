@@ -44,6 +44,10 @@ const enrollmentSchema = new mongoose.Schema({
   },
   // Setiap pendaftaran akan memiliki array yang berisi progres untuk setiap materi.
   progress: [materialProgressSchema],
+  completedAt: {
+    type: Date,
+    default: null,
+  },
 });
 
 const Enrollment = mongoose.model('Enrollment', enrollmentSchema);

@@ -107,6 +107,19 @@ export const updateUserProgress = async (req, res, next) => {
     if (step === 'completion') materialProgress.isCompleted = true;
 
     await enrollment.save();
+
+    if (step === 'completion' && !enrollment.completedAt) {
+      const totalMaterials = await Material.countDocuments({ courseId });
+      const completedMaterials = enrollment.progress.filter(
+        (p) => p.isCompleted
+      ).length;
+      if (totalMaterials === completedMaterials) {
+        enrollment.completedAt = new Date();
+        await enrollment.save();
+        console.log(`User ${userId} has completed course ${courseId}`);
+      }
+    }
+
     res.status(200).json({ success: true, data: enrollment });
   } catch (error) {
     next(error);
