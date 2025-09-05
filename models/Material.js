@@ -47,28 +47,32 @@ const materialSchema = new mongoose.Schema({
   },
 });
 
-materialSchema.pre('save', async function (next) {
-  // Hanya jalankan jika judul dimodifikasi atau ini adalah dokumen baru
-  if (this.isModified('title') || this.isNew) {
-    let slug = slugify(this.title, { lower: true, strict: true });
-
-    // Buat query untuk mencari slug yang sama di kursus yang sama,
-    // TAPI KECUALIKAN DOKUMEN INI (jika sudah ada di database)
-    const query = {
-      slug: new RegExp(`^${slug}`),
-      courseId: this.courseId,
-      _id: { $ne: this._id }, // <-- Kunci perbaikannya ada di sini
-    };
-
-    const count = await mongoose.model('Material').countDocuments(query);
-
-    // Jika ditemukan slug yang sama pada materi lain, tambahkan angka unik
-    if (count > 0) {
-      slug = `${slug}-${count + 1}`;
-    }
-
-    this.slug = slug;
+aterialSchema.pre('save', async function (next) {
+  // Hanya jalankan hook ini jika field 'title' dimodifikasi.
+  // Ini secara otomatis mencegah slug diubah saat Anda hanya mengedit deskripsi.
+  if (!this.isModified('title')) {
+    return next();
   }
+
+  // Buat slug dasar dari judul baru
+  let baseSlug = slugify(this.title, { lower: true, strict: true });
+  let newSlug = baseSlug;
+  let counter = 1;
+
+  // Terus cari slug unik sampai tidak ada yang sama
+  while (
+    await mongoose.models.Material.findOne({
+      slug: newSlug,
+      courseId: this.courseId,
+      // Pastikan tidak bertabrakan dengan dokumennya sendiri
+      _id: { $ne: this._id },
+    })
+  ) {
+    newSlug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  this.slug = newSlug;
   next();
 });
 
