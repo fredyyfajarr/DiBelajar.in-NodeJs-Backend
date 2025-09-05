@@ -47,7 +47,7 @@ const materialSchema = new mongoose.Schema({
   },
 });
 
-aterialSchema.pre('save', async function (next) {
+materialSchema.pre('save', async function (next) {
   // Hanya jalankan hook ini jika field 'title' dimodifikasi.
   // Ini secara otomatis mencegah slug diubah saat Anda hanya mengedit deskripsi.
   if (!this.isModified('title')) {
@@ -61,11 +61,11 @@ aterialSchema.pre('save', async function (next) {
 
   // Terus cari slug unik sampai tidak ada yang sama
   while (
-    await mongoose.models.Material.findOne({ 
-      slug: newSlug, 
+    await mongoose.models.Material.findOne({
+      slug: newSlug,
       courseId: this.courseId,
       // Pastikan tidak bertabrakan dengan dokumennya sendiri
-      _id: { $ne: this._id } 
+      _id: { $ne: this._id },
     })
   ) {
     newSlug = `${baseSlug}-${counter}`;
