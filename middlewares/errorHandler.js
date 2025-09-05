@@ -3,6 +3,10 @@ import logger from '../config/logger.js';
 const errorHandler = (err, req, res, next) => {
   // Tangani error Joi (Validasi)
   if (err.isJoi) {
+    console.log(
+      'JOI VALIDATION ERROR DETAILS:',
+      JSON.stringify(err.details, null, 2)
+    );  
     return res.status(400).json({ error: err.details[0].message });
   }
 

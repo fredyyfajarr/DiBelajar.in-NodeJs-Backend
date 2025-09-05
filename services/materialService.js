@@ -47,31 +47,46 @@ export const createMaterial = async (newMaterialData) => {
   }
 };
 
-export const updateMaterial = async (materialToUpdate, updateMaterialData) => {
+// export const updateMaterial = async (materialToUpdate, updateMaterialData) => {
+//   try {
+//     // PERBAIKAN: Hanya update field yang diizinkan untuk mencegah data korup
+//     const allowedUpdates = ['title', 'description', 'testContent'];
+
+//     allowedUpdates.forEach((field) => {
+//       // Cek apakah data baru menyediakan field ini
+//       if (updateMaterialData[field] !== undefined) {
+//         materialToUpdate[field] = updateMaterialData[field];
+//       }
+//     });
+
+//     // Hapus testContent jika array-nya kosong
+//     if (
+//       updateMaterialData.testContent &&
+//       updateMaterialData.testContent.length === 0
+//     ) {
+//       materialToUpdate.testContent = [];
+//     }
+
+//     const updatedMaterial = await materialToUpdate.save();
+//     return updatedMaterial;
+//   } catch (error) {
+//     console.error('Error updating material:', error);
+//     throw error;
+//   }
+// };
+
+export const updateMaterial = async (req, res, next) => {
+  // --- TAMBAHKAN BARIS INI UNTUK DEBUGGING ---
+  console.log('RECEIVED BODY FOR UPDATE:', JSON.stringify(req.body, null, 2));
+  // -------------------------------------------
   try {
-    // PERBAIKAN: Hanya update field yang diizinkan untuk mencegah data korup
-    const allowedUpdates = ['title', 'description', 'testContent'];
-
-    allowedUpdates.forEach((field) => {
-      // Cek apakah data baru menyediakan field ini
-      if (updateMaterialData[field] !== undefined) {
-        materialToUpdate[field] = updateMaterialData[field];
-      }
-    });
-
-    // Hapus testContent jika array-nya kosong
-    if (
-      updateMaterialData.testContent &&
-      updateMaterialData.testContent.length === 0
-    ) {
-      materialToUpdate.testContent = [];
-    }
-
-    const updatedMaterial = await materialToUpdate.save();
-    return updatedMaterial;
+    const updatedMaterial = await materialService.updateMaterial(
+      req.material,
+      req.body
+    );
+    res.json(updatedMaterial);
   } catch (error) {
-    console.error('Error updating material:', error);
-    throw error;
+    next(error);
   }
 };
 
