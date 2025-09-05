@@ -1,5 +1,6 @@
 import * as enrollmentService from '../services/enrollmentService.js';
 import Enrollment from '../models/Enrollment.js';
+import Material from '../models/Material.js';
 
 export const enrollInCourse = async (req, res, next) => {
   try {
@@ -78,13 +79,13 @@ export const removeEnrollment = async (req, res, next) => {
   }
 };
 
+// ===== GANTI FUNGSI updateUserProgress DENGAN INI =====
 export const updateUserProgress = async (req, res, next) => {
   try {
-    // Ambil data dari middleware, bukan dari req.params secara langsung
     const courseId = req.course._id;
     const materialId = req.material._id;
     const userId = req.user._id;
-    const { step } = req.body; // 'test', 'assignment', 'forum', 'completion'
+    const { step } = req.body;
 
     const enrollment = await Enrollment.findOne({ userId, courseId });
 
@@ -103,30 +104,17 @@ export const updateUserProgress = async (req, res, next) => {
 
     if (step === 'test') materialProgress.hasCompletedTest = true;
     if (step === 'assignment') materialProgress.hasSubmittedAssignment = true;
-    // if (step === 'forum') materialProgress.hasParticipatedInForum = true;
     if (step === 'completion') materialProgress.isCompleted = true;
 
+    // Logika pengecekan kelulusan kita pindahkan dari sini
     await enrollment.save();
-
-    if (step === 'completion' && !enrollment.completedAt) {
-      const totalMaterials = await Material.countDocuments({ courseId });
-      const completedMaterials = enrollment.progress.filter(
-        (p) => p.isCompleted
-      ).length;
-      if (totalMaterials === completedMaterials) {
-        enrollment.completedAt = new Date();
-        await enrollment.save();
-        console.log(`User ${userId} has completed course ${courseId}`);
-      }
-    }
-
     res.status(200).json({ success: true, data: enrollment });
   } catch (error) {
     next(error);
   }
 };
 
-// --- TAMBAHKAN FUNGSI BARU DI BAWAH INI ---
+// ===== GANTI FUNGSI getCertificateData DENGAN INI =====
 export const getCertificateData = async (req, res, next) => {
   try {
     const userId = req.user._id;
@@ -134,11 +122,30 @@ export const getCertificateData = async (req, res, next) => {
 
     const enrollment = await Enrollment.findOne({ userId, courseId });
 
-    // Cek apakah siswa terdaftar dan sudah menyelesaikan kursus
-    if (!enrollment || !enrollment.completedAt) {
-      return res.status(403).json({
-        error: 'Sertifikat tidak tersedia. Kursus belum selesai.',
-      });
+    if (!enrollment) {
+      return res
+        .status(404)
+        .json({ error: 'Anda tidak terdaftar di kursus ini.' });
+    }
+
+    // Cek apakah completedAt sudah ada
+    if (!enrollment.completedAt) {
+      // Jika belum ada, lakukan verifikasi di sini
+      const totalMaterials = await Material.countDocuments({ courseId });
+      const completedMaterials = enrollment.progress.filter(
+        (p) => p.isCompleted
+      ).length;
+
+      // Jika semua materi selesai, update completedAt
+      if (totalMaterials > 0 && totalMaterials === completedMaterials) {
+        enrollment.completedAt = new Date();
+        await enrollment.save();
+      } else {
+        // Jika belum selesai, tolak akses
+        return res.status(403).json({
+          error: 'Sertifikat tidak tersedia. Kursus belum selesai.',
+        });
+      }
     }
 
     // Kirim data yang dibutuhkan untuk sertifikat
