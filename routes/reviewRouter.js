@@ -15,7 +15,10 @@ import {
 const router = express.Router({ mergeParams: true });
 
 // Rute untuk mendapatkan semua ulasan (publik) dan menambah ulasan baru (terproteksi)
-router.route('/').get(getReviews).post(protect, loadCourse, addReview);
+router
+  .route('/')
+  .get(loadCourse, getReviews)
+  .post(protect, loadCourse, addReview);
 
 // Rute baru untuk mengelola ulasan pengguna yang sedang login
 // Pastikan rute ini berada di dalam file reviewRouter.js

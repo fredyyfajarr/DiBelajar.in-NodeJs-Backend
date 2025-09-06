@@ -16,13 +16,17 @@ const questionSchema = Joi.object({
 export const createMaterialSchema = Joi.object({
   title: Joi.string().required(),
   description: Joi.string().required(),
-  testContent: Joi.array().items(questionSchema).optional(),
+  testContent: Joi.array().items(questionSchema).optional().messages({
+    'array.base': 'Test content must be an array',
+  }),
 });
 
 export const updateMaterialSchema = Joi.object({
   title: Joi.string().trim().optional(), // Tambahkan .trim()
   description: Joi.string().trim().optional(), // Tambahkan .trim()
-  testContent: Joi.array().items(questionSchema).optional(),
+  testContent: Joi.array().items(questionSchema).optional().messages({
+    'array.base': 'Test content must be an array',
+  }),
   // PERBAIKAN: Secara eksplisit larang field lain yang tidak seharusnya dikirim
   _id: Joi.any().strip(),
   courseId: Joi.any().strip(),

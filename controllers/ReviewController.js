@@ -6,7 +6,7 @@ import Enrollment from '../models/Enrollment.js';
 export const getReviews = async (req, res, next) => {
   try {
     const reviews = await Review.find({
-      courseId: req.params.courseIdOrSlug,
+      courseId: req.course._id,
     }).populate({
       path: 'userId',
       select: 'name',
