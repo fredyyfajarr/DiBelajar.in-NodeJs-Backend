@@ -172,10 +172,20 @@ export const getStudentProgressInCourse = async (req, res, next) => {
     const enrollment = await Enrollment.findOne({
       courseId: req.course._id,
       userId: req.profile._id,
-    }).populate({
-      path: 'progress.materialId', // Populasi detail materi di dalam progress
-      select: 'title description', // Hanya ambil judul dan deskripsi
-    });
+    })
+      // --- PERBAIKAN DI SINI: TAMBAHKAN DUA .populate() ---
+      .populate({
+        path: 'userId', // Ambil data dari model User
+        select: 'name', // Hanya ambil field 'name'
+      })
+      .populate({
+        path: 'courseId', // Ambil data dari model Course
+        select: 'title', // Hanya ambil field 'title'
+      })
+      .populate({
+        path: 'progress.materialId', // Populasi detail materi di dalam progress
+        select: 'title description', // Hanya ambil judul dan deskripsi
+      });
 
     if (!enrollment) {
       return res
