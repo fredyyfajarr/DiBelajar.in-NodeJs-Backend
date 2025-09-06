@@ -20,6 +20,7 @@ import materialRouter from './routes/materialRouter.js';
 import enrollmentRouter from './routes/enrollmentRouter.js';
 import authRouter from './routes/authRouter.js';
 import statsRouter from './routes/statsRouter.js';
+import notificationRouter from './routes/notificationRouter.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,6 +65,7 @@ app.use('/api/materials', materialRouter);
 app.use('/api/enrollments', enrollmentRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/stats', statsRouter);
+app.use('/api/notifications', notificationRouter);
 
 // Error handling middleware
 app.use(errorHandler);

@@ -1,18 +1,47 @@
 import * as enrollmentService from '../services/enrollmentService.js';
+import * as notificationService from '../services/notificationService.js';
 import Enrollment from '../models/Enrollment.js';
 import Material from '../models/Material.js';
+import Course from '../models/Course.js';
 
 export const enrollInCourse = async (req, res, next) => {
   try {
+    // console.log('DEBUG: enrollInCourse started');
+
+    // Pastikan req.user dan req.course terdefinisi
+    if (!req.user || !req.course) {
+      // console.error('DEBUG: req.user or req.course is not defined!');
+      // Menghentikan eksekusi dengan error yang jelas
+      return res
+        .status(400)
+        .json({ error: 'User or course data is missing from request.' });
+    }
+
     const userId = req.user._id;
     const courseId = req.course._id;
+
+    // console.log('DEBUG: userId =', userId);
+    // console.log('DEBUG: courseId =', courseId);
 
     const newEnrollment = await enrollmentService.createEnrollment(
       userId,
       courseId
     );
+
+    // console.log('DEBUG: Enrollment created successfully.');
+
+    // Perbaikan di sini: Gunakan req.course, bukan variabel 'course' yang tidak terdefinisi
+    await notificationService.createNotification(
+      req.course.instructorId,
+      `${req.user.name} telah mendaftar ke kursus Anda: ${req.course.title}`,
+      `/instructor/courses/${req.course.slug}/enrollments`
+    );
+
+    // console.log('DEBUG: Notification created successfully.');
+
     res.status(201).json(newEnrollment);
   } catch (error) {
+    // console.error('DEBUG: Error in enrollInCourse:', error.message);
     next(error);
   }
 };
@@ -42,8 +71,8 @@ export const findEnrollmentByUserId = async (req, res, next) => {
 // --- Fungsi ini sudah kita perbaiki sebelumnya, tetap disertakan ---
 export const findEnrollmentByCourseId = async (req, res, next) => {
   try {
-    console.log('--- CONTROLLER ---');
-    console.log('Mencari pendaftar untuk Course ID:', req.course._id);
+    // console.log('--- CONTROLLER ---');
+    // console.log('Mencari pendaftar untuk Course ID:', req.course._id);
 
     const enrollments = await enrollmentService.findEnrollmentByCourseId(
       req.course._id,
@@ -80,6 +109,7 @@ export const removeEnrollment = async (req, res, next) => {
 };
 
 // ===== GANTI FUNGSI updateUserProgress DENGAN INI =====
+// ===== GANTI FUNGSI updateUserProgress DENGAN INI =====
 export const updateUserProgress = async (req, res, next) => {
   try {
     const courseId = req.course._id;
@@ -104,7 +134,15 @@ export const updateUserProgress = async (req, res, next) => {
 
     if (step === 'test') materialProgress.hasCompletedTest = true;
     if (step === 'assignment') materialProgress.hasSubmittedAssignment = true;
-    if (step === 'completion') materialProgress.isCompleted = true;
+    if (step === 'completion') {
+      materialProgress.isCompleted = true;
+      // LOGIKA BARU: Kirim notifikasi ke siswa saat materi selesai
+      await notificationService.createNotification(
+        userId,
+        `Anda telah menyelesaikan materi: ${req.material.title}`,
+        `/learn/${req.course.slug || req.course._id}`
+      );
+    }
 
     // Logika pengecekan kelulusan kita pindahkan dari sini
     await enrollment.save();
