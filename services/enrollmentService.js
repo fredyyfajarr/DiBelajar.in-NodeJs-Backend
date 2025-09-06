@@ -31,7 +31,7 @@ export const findEnrollmentByUserId = async (userId, options = {}) => {
 export const findEnrollmentByCourseId = async (courseId, options = {}) => {
   try {
     const conditions = { courseId: courseId };
-    const populateOptions = [{ path: 'userId', select: 'name email' }];
+    const populateOptions = [{ path: 'userId', select: 'name email slug' }];
     // TAMBAHKAN LOG INI
     console.log('--- SERVICE ---');
     console.log('Kondisi Query:', conditions);

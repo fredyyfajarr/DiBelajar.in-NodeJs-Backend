@@ -166,12 +166,12 @@ export const getCertificateData = async (req, res, next) => {
 // @route   GET /api/courses/:courseId/enrollments/:userId
 export const getStudentProgressInCourse = async (req, res, next) => {
   try {
-    const { courseIdOrSlug, userId } = req.params;
+    // const { courseIdOrSlug, userId } = req.params;
 
     // Middleware loadCourse sudah menyediakan req.course
     const enrollment = await Enrollment.findOne({
       courseId: req.course._id,
-      userId: userId,
+      userId: req.profile._id,
     }).populate({
       path: 'progress.materialId', // Populasi detail materi di dalam progress
       select: 'title description', // Hanya ambil judul dan deskripsi
