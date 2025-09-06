@@ -13,6 +13,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  getUserProfile,
 } from '../controllers/UserController.js';
 import { getSubmissionsByUserId } from '../controllers/AssignmentSubmissionController.js';
 import { getTestResultsByUserId } from '../controllers/TestResultController.js';
@@ -39,6 +40,8 @@ router
   .post(protect, authorize('admin'), validate(createUserSchema), createUser);
 
 router.route('/:idOrSlug');
+
+router.route('/:idOrSlug/profile').get(loadUser, getUserProfile);
 
 router
   .route('/:idOrSlug')

@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  bio: {
+    type: String,
+    maxlength: 250, // Batasi panjang bio
+  },
   role: {
     type: String,
     required: true,

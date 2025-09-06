@@ -23,6 +23,7 @@ import {
 import materialNestedRouter from './materialNestedRouter.js';
 import enrollmentCourseRouter from './enrollmentCourseRouter.js';
 import reviewRouter from './reviewRouter.js';
+import analyticsRouter from './analyticsRouter.js';
 import {
   createCourseSchema,
   updateCourseSchema,
@@ -98,5 +99,7 @@ router.use(
 );
 
 router.use('/:courseIdOrSlug/reviews', reviewRouter); // Baris ini yang paling penting
+
+router.use('/:courseIdOrSlug/analytics', analyticsRouter);
 
 export default router;
