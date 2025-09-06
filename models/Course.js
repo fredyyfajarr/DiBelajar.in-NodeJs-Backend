@@ -26,10 +26,14 @@ const courseSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      required: [true, 'Kategori wajib diisi'],
+    },
     // --- TAMBAHKAN DUA FIELD DI BAWAH INI ---
     averageRating: {
       type: Number,
-      min: [1, 'Rating minimal 1'],
       max: [5, 'Rating maksimal 5'],
       default: 0,
     },

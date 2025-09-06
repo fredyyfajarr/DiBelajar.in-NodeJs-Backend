@@ -37,7 +37,11 @@ router
   .route('/')
   .get(
     populateUser,
-    advancedResults(Course, 'instructorId', ['title', 'description']),
+    advancedResults(
+      Course,
+      ['instructorId', 'category'],
+      ['title', 'description']
+    ),
     getAllCourses
   )
   .post(

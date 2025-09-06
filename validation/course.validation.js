@@ -1,34 +1,31 @@
-// validation/course.validation.js
 import Joi from 'joi';
 import mongoose from 'mongoose';
 
 const objectIdValidator = (value, helpers) => {
-  // kalau null/undefined, langsung invalid
-  if (!value) return helpers.error('any.required');
-
-  // kalau sudah ObjectId (dari JSON)
-  if (value instanceof mongoose.Types.ObjectId) {
-    return value;
+  if (!value || !mongoose.Types.ObjectId.isValid(value)) {
+    return helpers.error('any.invalid');
   }
-
-  // kalau string → cek valid ObjectId
-  if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
-    return value;
-  }
-
-  return helpers.error('any.invalid');
+  return value;
 };
 
 export const createCourseSchema = Joi.object({
-  title: Joi.string().trim().required().messages({
-    'string.empty': 'Judul wajib diisi',
-  }),
-  description: Joi.string().trim().required().messages({
-    'string.empty': 'Deskripsi wajib diisi',
-  }),
-  instructorId: Joi.alternatives()
-    .try(Joi.string(), Joi.object())
-    .custom(objectIdValidator)
+  title: Joi.string()
+    .trim()
+    .required()
+    .messages({ 'string.empty': 'Judul wajib diisi' }),
+  description: Joi.string()
+    .trim()
+    .required()
+    .messages({ 'string.empty': 'Deskripsi wajib diisi' }),
+  category: Joi.string()
+    .custom(objectIdValidator, 'ObjectID Validation')
+    .required()
+    .messages({
+      'any.invalid': 'ID Kategori tidak valid',
+      'any.required': 'Kategori wajib dipilih',
+    }),
+  instructorId: Joi.string()
+    .custom(objectIdValidator, 'ObjectID Validation')
     .required()
     .messages({
       'any.invalid': 'InstrukturId harus ObjectId yang valid',
@@ -39,11 +36,10 @@ export const createCourseSchema = Joi.object({
 export const updateCourseSchema = Joi.object({
   title: Joi.string().trim().optional(),
   description: Joi.string().trim().optional(),
-  instructorId: Joi.alternatives()
-    .try(Joi.string(), Joi.object())
-    .custom(objectIdValidator)
-    .optional()
-    .messages({
-      'any.invalid': 'InstrukturId harus ObjectId yang valid',
-    }),
+  category: Joi.string()
+    .custom(objectIdValidator, 'ObjectID Validation')
+    .optional(),
+  instructorId: Joi.string()
+    .custom(objectIdValidator, 'ObjectID Validation')
+    .optional(),
 });

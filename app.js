@@ -21,6 +21,7 @@ import enrollmentRouter from './routes/enrollmentRouter.js';
 import authRouter from './routes/authRouter.js';
 import statsRouter from './routes/statsRouter.js';
 import notificationRouter from './routes/notificationRouter.js';
+import categoryRouter from './routes/categoryRouter.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -66,6 +67,7 @@ app.use('/api/enrollments', enrollmentRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/notifications', notificationRouter);
+app.use('/api/categories', categoryRouter);
 
 // Error handling middleware
 app.use(errorHandler);

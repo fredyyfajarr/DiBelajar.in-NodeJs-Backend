@@ -15,6 +15,10 @@ export const advancedResults =
 
     let findQuery = JSON.parse(queryStr);
 
+    if (req.query.category) {
+      findQuery.category = req.query.category;
+    }
+
     if (
       req.user &&
       req.user.role === 'instructor' &&
