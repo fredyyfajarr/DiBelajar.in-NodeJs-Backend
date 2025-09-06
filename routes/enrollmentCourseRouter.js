@@ -8,6 +8,6 @@ import { loadUser } from '../middlewares/userMiddleware.js';
 const router = express.Router({ mergeParams: true });
 
 router.route('/').get(findEnrollmentByCourseId);
-router.route('/:userIdOrSlug').get(loadUser, getStudentProgressInCourse);
+router.route('/:userId').get(loadUser, getStudentProgressInCourse);
 
 export default router;

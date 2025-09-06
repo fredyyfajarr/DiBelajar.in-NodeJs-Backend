@@ -2,7 +2,8 @@ import { findUserById } from '../services/userService.js'; // <-- Impor service
 
 export const loadUser = async (req, res, next) => {
   try {
-    const id = req.params.userIdOrSlug || req.params.idOrSlug;
+    const id =
+      req.params.userIdOrSlug || req.params.idOrSlug || req.params.userId;
 
     if (!id) {
       return res.status(400).json({ error: 'User ID or slug is required' });
