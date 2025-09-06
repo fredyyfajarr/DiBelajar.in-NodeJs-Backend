@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+dotenv.config();
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import logger from './config/logger.js';
@@ -22,16 +23,6 @@ import statsRouter from './routes/statsRouter.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
-// Konfigurasi CORS yang lebih baik
-// app.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-//   res.setHeader(
-//     'Access-Control-Allow-Methods',
-//     'GET, POST, PUT, DELETE, OPTIONS'
-//   );
-//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//   next();
-// });
 
 // Security Middleware
 app.use(helmet({ crossOriginResourcePolicy: false }));
@@ -83,7 +74,6 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-dotenv.config();
 connectDB();
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`Server is running on http://0.0.0.0:${PORT}`);
