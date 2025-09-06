@@ -97,6 +97,6 @@ router.use(
   enrollmentCourseRouter
 );
 
-router.use('/:courseIdOrSlug/reviews', reviewRouter);
+router.use('/:courseIdOrSlug/reviews', reviewRouter); // Baris ini yang paling penting
 
 export default router;

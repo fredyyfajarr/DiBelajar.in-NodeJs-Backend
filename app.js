@@ -8,6 +8,7 @@ import compression from 'compression';
 import cors from 'cors';
 import hpp from 'hpp';
 import morgan from 'morgan';
+
 // DB Connect
 import connectDB from './config/db.js';
 // Error Handler
@@ -24,8 +25,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
-// Security Middleware
-app.use(helmet({ crossOriginResourcePolicy: false }));
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,12 +32,11 @@ app.use(compression());
 const allowedOrigins = [
   'http://localhost:5173',
   'https://di-belajar-in.vercel.app',
-  'http://192.168.1.100:5173', // Ganti dengan domain Anda
+  'http://192.168.1.100:5173',
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Izinkan request tanpa origin (seperti dari aplikasi mobile/Postman) atau jika origin ada di dalam daftar
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -51,13 +49,12 @@ app.use(cors(corsOptions));
 app.use(hpp());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: 'Too many requests, please try again later.',
 });
-// Apply rate limiting middleware
 app.use(limiter);
 
 // Routes
@@ -75,8 +72,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 connectDB();
+// Gunakan server.listen, bukan app.listen
 app.listen(PORT, '0.0.0.0', () => {
-  logger.info(`Server is running on http://0.0.0.0:${PORT}`);
+  logger.info(`Server berjalan di http://0.0.0.0:${PORT}`);
 });
 
 export default app;
