@@ -126,3 +126,32 @@ export const removeCourse = async (courseToDelete) => {
     session.endSession();
   }
 };
+
+export const getCourseDetails = async (courseId, userId = null) => {
+  // Ambil data kursus dan materi secara bersamaan
+  const [course, materials] = await Promise.all([
+    Course.findById(courseId).populate({
+      path: 'instructorId',
+      select: 'name',
+    }),
+    Material.find({ courseId: courseId }),
+  ]);
+
+  if (!course) {
+    const error = new Error('Course not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  let enrollment = null;
+  // Jika ada user ID, cari data pendaftarannya
+  if (userId) {
+    enrollment = await Enrollment.findOne({ userId, courseId });
+  }
+
+  return { course, materials, enrollment };
+};
+
+export const getCoursesByInstructor = async (instructorId) => {
+  return Course.find({ instructorId }).populate('instructorId', 'name');
+};

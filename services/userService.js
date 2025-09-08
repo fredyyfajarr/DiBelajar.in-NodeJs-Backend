@@ -88,3 +88,32 @@ export const removeUser = async (userToDelete) => {
     session.endSession();
   }
 };
+
+export const getUserPublicProfile = async (user) => {
+  // Jika bukan student, kembalikan data dasar
+  if (user.role !== 'student') {
+    return {
+      name: user.name,
+      slug: user.slug,
+      role: user.role,
+      createdAt: user.createdAt,
+    };
+  }
+
+  // Jika student, ambil data kursus yang telah diselesaikan
+  const completedCourses = await Enrollment.find({
+    userId: user._id,
+    completedAt: { $ne: null },
+  }).populate({
+    path: 'courseId',
+    select: 'title slug thumbnail',
+  });
+
+  return {
+    name: user.name,
+    slug: user.slug,
+    createdAt: user.createdAt,
+    bio: user.bio,
+    completedCourses: completedCourses.map((e) => e.courseId),
+  };
+};

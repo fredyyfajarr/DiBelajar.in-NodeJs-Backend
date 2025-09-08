@@ -7,40 +7,30 @@ export const getAllCourses = async (req, res, next) => {
   res.status(200).json(res.advancedResults);
 };
 
-// --- TAMBAHKAN FUNGSI BARU DI SINI ---
 export const getCourseAndMaterialsById = async (req, res, next) => {
   try {
-    const course = req.course; // Diambil dari middleware loadCourse
-    const materials = await materialService.findMaterialsByCourseId(course._id);
-
-    let enrollment = null;
-    if (req.user) {
-      enrollment = await Enrollment.findOne({
-        userId: req.user._id,
-        courseId: course._id,
-      });
-    }
+    // Ambil userId jika ada (dari middleware populateUser atau protect)
+    const userId = req.user ? req.user._id : null;
+    const courseDetails = await courseService.getCourseDetails(
+      req.course._id,
+      userId
+    );
 
     res.status(200).json({
       success: true,
-      data: {
-        course,
-        materials,
-        enrollment,
-      },
+      data: courseDetails,
     });
   } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
     next(error);
   }
 };
+
 export const getMyCourses = async (req, res, next) => {
   try {
-    // Langsung query ke database untuk mencari kursus milik user yang login
-    const courses = await Course.find({ instructorId: req.user._id }).populate(
-      'instructorId',
-      'name'
-    );
-
+    const courses = await courseService.getCoursesByInstructor(req.user._id);
     res.status(200).json({
       success: true,
       count: courses.length,

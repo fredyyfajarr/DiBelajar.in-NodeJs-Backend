@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import logger from './config/logger.js';
@@ -28,6 +29,8 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 // Middleware
+app.use(cookieParser());
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
