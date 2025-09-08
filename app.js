@@ -1,7 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
-import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import logger from './config/logger.js';
@@ -9,6 +8,7 @@ import compression from 'compression';
 import cors from 'cors';
 import hpp from 'hpp';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
 
 // DB Connect
@@ -31,9 +31,26 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(cookieParser());
-app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// --- Middleware Keamanan ---
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"], // Hanya izinkan sumber dari domain sendiri secara default
+        scriptSrc: ["'self'"], // Hanya izinkan skrip dari domain sendiri
+        styleSrc: ["'self'"], // Hanya izinkan style dari domain sendiri
+        imgSrc: ["'self'", 'data:', 'res.cloudinary.com'], // Izinkan gambar dari domain sendiri, data inline, dan Cloudinary
+        connectSrc: ["'self'"], // Hanya izinkan koneksi (API, WebSocket) ke domain sendiri
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"], // Jangan izinkan plugin seperti Flash
+        upgradeInsecureRequests: [],
+      },
+    },
+  })
+);
 app.use(mongoSanitize());
 app.use(compression());
 const allowedOrigins = [
@@ -65,6 +82,11 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
+// PERUBAHAN 2: Menambahkan rute utama untuk ZAP dan pengecekan status
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'API is running' });
+});
+
 app.use('/api/users', userRouter);
 app.use('/api/courses', courseRouter);
 app.use('/api/materials', materialRouter);
