@@ -9,6 +9,7 @@ import compression from 'compression';
 import cors from 'cors';
 import hpp from 'hpp';
 import morgan from 'morgan';
+import mongoSanitize from 'express-mongo-sanitize';
 
 // DB Connect
 import connectDB from './config/db.js';
@@ -33,6 +34,7 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(mongoSanitize());
 app.use(compression());
 const allowedOrigins = [
   'http://localhost:5173',

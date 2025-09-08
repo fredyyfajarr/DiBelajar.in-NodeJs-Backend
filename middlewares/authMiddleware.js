@@ -68,17 +68,14 @@ export const authorizeSelfOrAdmin = (req, res, next) => {
 export const authorizeEnrolled = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const { courseIdOrSlug } = req.params;
 
-    let course;
-    if (mongoose.Types.ObjectId.isValid(courseIdOrSlug)) {
-      course = await Course.findById(courseIdOrSlug);
-    } else {
-      course = await Course.findOne({ slug: courseIdOrSlug });
-    }
+    // Langsung gunakan req.course yang sudah disiapkan oleh middleware loadCourse
+    const course = req.course;
 
     if (!course) {
-      return next();
+      // Seharusnya tidak pernah terjadi jika urutan middleware benar,
+      // tapi ini sebagai pengaman.
+      return res.status(404).json({ message: 'Course not found in context' });
     }
 
     const enrollment = await Enrollment.findOne({
@@ -86,20 +83,23 @@ export const authorizeEnrolled = async (req, res, next) => {
       courseId: course._id,
     });
 
-    if (!enrollment) {
-      if (
-        req.user.role === 'admin' ||
-        (course.instructorId &&
-          course.instructorId.toString() === userId.toString())
-      ) {
-        return next();
-      }
-      return res
-        .status(403)
-        .json({ message: 'You are not enrolled in this course' });
+    // Izinkan akses jika:
+    // 1. Pengguna adalah admin
+    // 2. Pengguna adalah instruktur pemilik kursus
+    // 3. Pengguna terdaftar (enrollment ditemukan)
+    if (
+      req.user.role === 'admin' ||
+      (course.instructorId &&
+        course.instructorId.toString() === userId.toString()) ||
+      enrollment
+    ) {
+      return next();
     }
 
-    next();
+    // Jika tidak memenuhi semua kondisi di atas, tolak akses.
+    return res
+      .status(403)
+      .json({ message: 'You are not enrolled in this course' });
   } catch (error) {
     next(error);
   }

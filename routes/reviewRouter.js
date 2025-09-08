@@ -1,5 +1,3 @@
-// dibelajar.in-nodejs-backend/routes/reviewRouter.js
-
 import express from 'express';
 import { protect } from '../middlewares/authMiddleware.js';
 import { loadCourse } from '../middlewares/courseMiddleware.js';
@@ -10,22 +8,20 @@ import {
   updateReview,
   deleteReview,
 } from '../controllers/ReviewController.js';
+import { validate } from '../middlewares/validate.js'; // <-- 1. Impor
+import { reviewSchema } from '../validation/review.validation.js'; // <-- 2. Impor
 
-// Opsi { mergeParams: true } penting agar bisa mengakses :courseIdOrSlug dari parent router
 const router = express.Router({ mergeParams: true });
 
-// Rute untuk mendapatkan semua ulasan (publik) dan menambah ulasan baru (terproteksi)
 router
   .route('/')
   .get(loadCourse, getReviews)
-  .post(protect, loadCourse, addReview);
+  .post(protect, loadCourse, validate(reviewSchema), addReview); // <-- 3. Terapkan di sini
 
-// Rute baru untuk mengelola ulasan pengguna yang sedang login
-// Pastikan rute ini berada di dalam file reviewRouter.js
 router
   .route('/my')
-  .get(protect, loadCourse, getMyReview) // Mendapatkan ulasan milik sendiri
-  .put(protect, loadCourse, updateReview) // Memperbarui ulasan milik sendiri
-  .delete(protect, loadCourse, deleteReview); // Menghapus ulasan milik sendiri
+  .get(protect, loadCourse, getMyReview)
+  .put(protect, loadCourse, validate(reviewSchema), updateReview) // <-- 4. Terapkan di sini juga
+  .delete(protect, loadCourse, deleteReview);
 
 export default router;
