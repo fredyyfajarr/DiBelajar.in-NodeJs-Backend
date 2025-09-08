@@ -26,6 +26,7 @@ import {
 } from '../validation/user.validation.js';
 
 import User from '../models/User.js';
+import cacheMiddleware from '../middlewares/cacheMiddleware.js'; // <-- Impor cache
 
 const router = express.Router();
 
@@ -39,13 +40,16 @@ router
   )
   .post(protect, authorize('admin'), validate(createUserSchema), createUser);
 
-router.route('/:idOrSlug');
-
-router.route('/:idOrSlug/profile').get(loadUser, getUserProfile);
+// Cache diterapkan hanya pada rute profil publik
+router.route('/:idOrSlug/profile').get(
+  cacheMiddleware, // <-- CACHE DITERAPKAN DI SINI
+  loadUser,
+  getUserProfile
+);
 
 router
   .route('/:idOrSlug')
-  .get(protect, loadUser, authorizeSelfOrAdmin, getUserById)
+  .get(protect, loadUser, authorizeSelfOrAdmin, getUserById) // Tidak di-cache karena data sensitif
   .put(
     protect,
     loadUser,

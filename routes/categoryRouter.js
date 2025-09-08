@@ -5,17 +5,24 @@ import {
   deleteCategory,
 } from '../controllers/CategoryController.js';
 import { protect, authorize } from '../middlewares/authMiddleware.js';
-import { validate } from '../middlewares/validate.js'; // <-- 1. Impor middleware validate
-import { createCategorySchema } from '../validation/category.validation.js'; // <-- 2. Impor skema
+import { validate } from '../middlewares/validate.js';
+import { createCategorySchema } from '../validation/category.validation.js';
+import cacheMiddleware from '../middlewares/cacheMiddleware.js'; // <-- Impor cache
 
 const router = express.Router();
 
-router.route('/').get(getCategories).post(
-  protect,
-  authorize('admin', 'instructor'),
-  validate(createCategorySchema), // <-- 3. Terapkan validasi di sini
-  createCategory
-);
+router
+  .route('/')
+  .get(
+    cacheMiddleware, // <-- CACHE DITERAPKAN DI SINI
+    getCategories
+  )
+  .post(
+    protect,
+    authorize('admin', 'instructor'),
+    validate(createCategorySchema),
+    createCategory
+  );
 
 router.route('/:id').delete(protect, authorize('admin'), deleteCategory);
 

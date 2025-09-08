@@ -30,6 +30,7 @@ import {
 } from '../validation/course.validation.js';
 import Course from '../models/Course.js';
 import { populateUser } from '../middlewares/populateUser.js';
+import cacheMiddleware from '../middlewares/cacheMiddleware.js'; // <-- Impor cache
 
 const router = express.Router();
 
@@ -37,6 +38,7 @@ router
   .route('/')
   .get(
     populateUser,
+    cacheMiddleware, // <-- CACHE DITERAPKAN DI SINI
     advancedResults(
       Course,
       ['instructorId', 'category'],
@@ -54,7 +56,12 @@ router
 
 router
   .route('/:idOrSlug')
-  .get(populateUser, loadCourse, getCourseAndMaterialsById)
+  .get(
+    populateUser,
+    cacheMiddleware, // <-- CACHE DITERAPKAN DI SINI
+    loadCourse,
+    getCourseAndMaterialsById
+  )
   .put(
     protect,
     authorize('admin', 'instructor'),
@@ -76,22 +83,17 @@ router
   .route('/:idOrSlug/enrollments')
   .post(protect, loadCourse, enrollInCourse);
 
-// --- 2. TAMBAHKAN BLOK KODE DI BAWAH INI SEBELUM "export default router" ---
-router.route('/:idOrSlug/certificate-data').get(
-  protect, // Pastikan pengguna sudah login
-  loadCourse, // Dapatkan data kursus dari URL
-  getCertificateData // Panggil controller untuk mengambil data sertifikat
-);
+router
+  .route('/:idOrSlug/certificate-data')
+  .get(protect, loadCourse, getCertificateData);
 
-// --- PERUBAHAN UTAMA DI BLOK INI ---
 router.use(
   '/:courseIdOrSlug/materials',
-  protect, // Pastikan user sudah login
-  loadCourse, // Muat data kursus
-  authorizeEnrolled, // Pastikan user adalah partisipan sah (terdaftar, atau admin/pemilik)
-  materialNestedRouter // Lanjutkan ke rute-rute spesifik materi
+  protect,
+  loadCourse,
+  authorizeEnrolled,
+  materialNestedRouter
 );
-// --- AKHIR PERUBAHAN ---
 
 router.use(
   '/:courseIdOrSlug/enrollments',
@@ -102,7 +104,8 @@ router.use(
   enrollmentCourseRouter
 );
 
-router.use('/:courseIdOrSlug/reviews', reviewRouter); // Baris ini yang paling penting
+// Menerapkan cache ke seluruh rute di dalam reviewRouter
+router.use('/:courseIdOrSlug/reviews', cacheMiddleware, reviewRouter);
 
 router.use('/:courseIdOrSlug/analytics', analyticsRouter);
 
