@@ -1,3 +1,5 @@
+// controllers/ReviewController.js
+
 import * as reviewService from '../services/reviewService.js';
 
 export const getReviews = async (req, res, next) => {
@@ -20,16 +22,7 @@ export const addReview = async (req, res, next) => {
     );
     res.status(201).json({ success: true, data: review });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({
-        error: 'Anda sudah pernah memberikan ulasan untuk kursus ini.',
-      });
-    }
-    // Menggunakan statusCode dari service jika ada
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Disederhanakan
   }
 };
 
@@ -39,7 +32,6 @@ export const getMyReview = async (req, res, next) => {
       req.user._id,
       req.course._id
     );
-    // Service akan mengembalikan null jika tidak ada, jadi tidak perlu cek `!review` lagi.
     res.status(200).json({ success: true, data: review });
   } catch (error) {
     next(error);
@@ -55,10 +47,7 @@ export const updateReview = async (req, res, next) => {
     );
     res.status(200).json({ success: true, data: review });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Disederhanakan
   }
 };
 
@@ -69,9 +58,6 @@ export const deleteReview = async (req, res, next) => {
       .status(200)
       .json({ success: true, message: 'Ulasan berhasil dihapus.' });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Disederhanakan
   }
 };

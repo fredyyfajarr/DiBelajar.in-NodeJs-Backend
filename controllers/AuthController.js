@@ -66,10 +66,7 @@ export const refreshToken = async (req, res, next) => {
     const newAccessToken = await authService.refreshAccessToken(refreshToken);
     res.status(200).json({ success: true, token: newAccessToken });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Disederhanakan
   }
 };
 
@@ -97,9 +94,6 @@ export const resetPassword = async (req, res, next) => {
     );
     res.status(200).json({ success: true, token });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
-    next(error);
+    next(error); // <-- Disederhanakan
   }
 };

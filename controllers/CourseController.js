@@ -9,7 +9,6 @@ export const getAllCourses = async (req, res, next) => {
 
 export const getCourseAndMaterialsById = async (req, res, next) => {
   try {
-    // Ambil userId jika ada (dari middleware populateUser atau protect)
     const userId = req.user ? req.user._id : null;
     const courseDetails = await courseService.getCourseDetails(
       req.course._id,
@@ -21,10 +20,7 @@ export const getCourseAndMaterialsById = async (req, res, next) => {
       data: courseDetails,
     });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Disederhanakan
   }
 };
 

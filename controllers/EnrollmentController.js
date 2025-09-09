@@ -1,3 +1,5 @@
+// controllers/EnrollmentController.js
+
 import * as enrollmentService from '../services/enrollmentService.js';
 import * as notificationService from '../services/notificationService.js';
 
@@ -20,10 +22,7 @@ export const enrollInCourse = async (req, res, next) => {
 
     res.status(201).json(newEnrollment);
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Langsung serahkan ke error handler
   }
 };
 
@@ -74,10 +73,7 @@ export const removeEnrollment = async (req, res, next) => {
       data: deletedEnrollment,
     });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Langsung serahkan ke error handler
   }
 };
 
@@ -88,15 +84,12 @@ export const updateUserProgress = async (req, res, next) => {
       req.course._id,
       req.material._id,
       req.body.step,
-      req.material.title, // Mengirim data tambahan ke service
-      req.course.slug // Mengirim data tambahan ke service
+      req.material.title,
+      req.course.slug
     );
     res.status(200).json({ success: true, data: enrollment });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Langsung serahkan ke error handler
   }
 };
 
@@ -115,10 +108,7 @@ export const getCertificateData = async (req, res, next) => {
       },
     });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Langsung serahkan ke error handler
   }
 };
 
@@ -133,9 +123,6 @@ export const getStudentProgressInCourse = async (req, res, next) => {
       data: progressData,
     });
   } catch (error) {
-    if (error.statusCode) {
-      return res.status(error.statusCode).json({ error: error.message });
-    }
-    next(error);
+    next(error); // <-- Langsung serahkan ke error handler
   }
 };
