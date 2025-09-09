@@ -10,7 +10,7 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
-import csurf from 'csurf'; // <-- Impor csurf
+import csurf from 'csurf';
 
 // DB Connect
 import connectDB from './config/db.js';
@@ -54,10 +54,12 @@ app.use(
 );
 app.use(mongoSanitize());
 app.use(compression());
+
+// PERBAIKAN: Pindahkan CORS ke atas, sebelum HPP dan CSURF
 const allowedOrigins = [
   'http://localhost:5173',
   'https://di-belajar-in.vercel.app',
-  'http://192.18.1.100:5173',
+  'http://192.168.1.100:5173',
 ];
 
 const corsOptions = {
@@ -69,8 +71,10 @@ const corsOptions = {
     }
   },
   optionsSuccessStatus: 200,
+  credentials: true, // <-- PENTING: Izinkan pengiriman cookie
 };
 app.use(cors(corsOptions));
+
 app.use(hpp());
 
 const limiter = rateLimit({
@@ -82,12 +86,12 @@ const limiter = rateLimit({
 });
 // app.use(limiter); // Dinonaktifkan sementara untuk testing
 
-// PERBAIKAN: Terapkan middleware csurf
+// Terapkan middleware csurf setelah CORS
 const csrfProtection = csurf({
   cookie: {
-    httpOnly: true, // Mencegah cookie diakses oleh JavaScript di browser
-    secure: process.env.NODE_ENV === 'production', // Hanya kirim lewat HTTPS di produksi
-    sameSite: 'strict', // Mencegah cookie dikirim pada permintaan lintas situs (proteksi CSRF)
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
   },
 });
 app.use(csrfProtection);
@@ -97,7 +101,6 @@ app.get('/', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'API is running' });
 });
 
-// PERBAIKAN: Tambahkan rute untuk frontend mendapatkan token CSRF
 app.get('/api/csrf-token', (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
@@ -113,7 +116,7 @@ app.use('/api/categories', categoryRouter);
 
 // Error handling middleware
 app.use(errorHandler);
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 

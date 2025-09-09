@@ -35,14 +35,13 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "prod:start": "pm2 start app.js -i max --name dibelajarin-backend",
+    "prod:reload": "pm2 reload dibelajarin-backend",
+    "prod:stop": "pm2 stop dibelajarin-backend",
+    "prod:logs": "pm2 logs dibelajarin-backend"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "jest": "^30.1.3",
-    "mongodb-memory-server": "^10.2.0",
-    "supertest": "^7.1.4"
-  }
+  "author": "Fredy Fajar <fredyfajar46@gmail.com>",
+  "license": "ISC"
 }

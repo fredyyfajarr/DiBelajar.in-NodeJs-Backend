@@ -2064,3 +2064,4 @@
 {"level":"info","message":"Connected to Redis successfully!"}
 {"level":"info","message":"Server berjalan di http://0.0.0.0:3000"}
 {"level":"info","message":"Connected to Redis successfully!"}
+{"level":"error","message":"Redis Client Error Socket closed unexpectedly","stack":"Error: Socket closed unexpectedly\n    at Socket.<anonymous> (/app/node_modules/@redis/client/dist/lib/client/socket.js:202:33)\n    at Object.onceWrapper (node:events:632:26)\n    at Socket.emit (node:events:517:28)\n    at TCP.<anonymous> (node:net:350:12)"}
