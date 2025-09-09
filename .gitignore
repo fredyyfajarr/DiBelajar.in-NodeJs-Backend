@@ -22,3 +22,12 @@ yarn-error.log*
 .vscode/
 .idea/
 .DS_Store
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Error
+combined.log
+error.log
