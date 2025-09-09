@@ -83,7 +83,13 @@ const limiter = rateLimit({
 // app.use(limiter); // Dinonaktifkan sementara untuk testing
 
 // PERBAIKAN: Terapkan middleware csurf
-const csrfProtection = csurf({ cookie: true });
+const csrfProtection = csurf({
+  cookie: {
+    httpOnly: true, // Mencegah cookie diakses oleh JavaScript di browser
+    secure: process.env.NODE_ENV === 'production', // Hanya kirim lewat HTTPS di produksi
+    sameSite: 'strict', // Mencegah cookie dikirim pada permintaan lintas situs (proteksi CSRF)
+  },
+});
 app.use(csrfProtection);
 
 // Routes
