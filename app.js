@@ -10,7 +10,7 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
-import csurf from 'csurf';
+// import csrf from 'csrf';
 
 // DB Connect
 import connectDB from './config/db.js';
@@ -87,14 +87,14 @@ const limiter = rateLimit({
 // app.use(limiter); // Dinonaktifkan sementara untuk testing
 
 // Terapkan middleware csurf setelah CORS
-const csrfProtection = csurf({
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  },
-});
-app.use(csrfProtection);
+// const csrfProtection = csrf({
+//   cookie: {
+//     httpOnly: true,
+//     secure: process.env.NODE_ENV === 'production',
+//     sameSite: 'strict',
+//   },
+// });
+// app.use(csrfProtection);
 
 // Routes
 app.get('/', (req, res) => {
