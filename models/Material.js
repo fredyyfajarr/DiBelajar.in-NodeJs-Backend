@@ -1,9 +1,6 @@
-// src/models/Material.js
-
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 
-// Skema untuk pertanyaan tes tetap kita butuhkan
 const questionSchema = new mongoose.Schema({
   questionText: { type: String, required: true },
   options: [
@@ -32,8 +29,8 @@ const materialSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course',
     required: true,
+    index: true, // <-- DITAMBAHKAN
   },
-  // 'testContent' bersifat opsional. Jika kosong, materi ini tidak punya tes.
   testContent: {
     type: [questionSchema],
   },

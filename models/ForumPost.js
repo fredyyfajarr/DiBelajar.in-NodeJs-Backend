@@ -1,5 +1,3 @@
-// src/models/ForumPost.js
-
 import mongoose from 'mongoose';
 
 const forumPostSchema = new mongoose.Schema({
@@ -7,29 +5,29 @@ const forumPostSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
+    index: true, // <-- DITAMBAHKAN
   },
   materialId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Material',
     required: true,
+    index: true, // <-- DITAMBAHKAN
   },
   text: {
     type: String,
     required: true,
   },
-  // --- FIELD BARU UNTUK SISTEM REPLY ---
   parentPostId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'ForumPost',
-    default: null, // Jika null, ini adalah postingan induk
+    default: null,
   },
   replies: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'ForumPost', // Menyimpan ID dari balasan-balasannya
+      ref: 'ForumPost',
     },
   ],
-  // --- AKHIR PENAMBAHAN ---
   timestamp: {
     type: Date,
     default: Date.now,

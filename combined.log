@@ -2062,3 +2062,5 @@
 {"level":"info","message":"Connected to Redis successfully!"}
 {"level":"info","message":"Server berjalan di http://0.0.0.0:3000"}
 {"level":"info","message":"Connected to Redis successfully!"}
+{"level":"info","message":"Server berjalan di http://0.0.0.0:3000"}
+{"level":"info","message":"Connected to Redis successfully!"}

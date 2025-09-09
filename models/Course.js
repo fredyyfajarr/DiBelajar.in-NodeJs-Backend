@@ -25,13 +25,14 @@ const courseSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      index: true, // <-- DITAMBAHKAN
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',
       required: [true, 'Kategori wajib diisi'],
+      index: true, // <-- DITAMBAHKAN
     },
-    // --- TAMBAHKAN DUA FIELD DI BAWAH INI ---
     averageRating: {
       type: Number,
       max: [5, 'Rating maksimal 5'],
@@ -50,9 +51,11 @@ const courseSchema = new mongoose.Schema(
 courseSchema.pre('save', async function (next) {
   if (this.isModified('title') || !this.slug) {
     let slug = slugify(this.title, { lower: true, strict: true });
-    let count = await Course.countDocuments({ slug });
+    let count = await mongoose.models.Course.countDocuments({
+      slug: new RegExp(`^${slug}`),
+    });
     if (count > 0) {
-      slug += `-${count}`;
+      slug += `-${count + 1}`;
     }
     this.slug = slug;
   }
