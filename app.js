@@ -10,6 +10,7 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
+import csurf from 'csurf'; // <-- Impor csurf
 
 // DB Connect
 import connectDB from './config/db.js';
@@ -39,13 +40,13 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'"], // Hanya izinkan sumber dari domain sendiri secara default
-        scriptSrc: ["'self'"], // Hanya izinkan skrip dari domain sendiri
-        styleSrc: ["'self'"], // Hanya izinkan style dari domain sendiri
-        imgSrc: ["'self'", 'data:', 'res.cloudinary.com'], // Izinkan gambar dari domain sendiri, data inline, dan Cloudinary
-        connectSrc: ["'self'"], // Hanya izinkan koneksi (API, WebSocket) ke domain sendiri
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'res.cloudinary.com'],
+        connectSrc: ["'self'"],
         fontSrc: ["'self'"],
-        objectSrc: ["'none'"], // Jangan izinkan plugin seperti Flash
+        objectSrc: ["'none'"],
         upgradeInsecureRequests: [],
       },
     },
@@ -56,7 +57,7 @@ app.use(compression());
 const allowedOrigins = [
   'http://localhost:5173',
   'https://di-belajar-in.vercel.app',
-  'http://192.168.1.100:5173',
+  'http://192.18.1.100:5173',
 ];
 
 const corsOptions = {
@@ -79,12 +80,20 @@ const limiter = rateLimit({
   legacyHeaders: false,
   message: 'Too many requests, please try again later.',
 });
-app.use(limiter);
+// app.use(limiter); // Dinonaktifkan sementara untuk testing
+
+// PERBAIKAN: Terapkan middleware csurf
+const csrfProtection = csurf({ cookie: true });
+app.use(csrfProtection);
 
 // Routes
-// PERUBAHAN 2: Menambahkan rute utama untuk ZAP dan pengecekan status
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'API is running' });
+});
+
+// PERBAIKAN: Tambahkan rute untuk frontend mendapatkan token CSRF
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
 });
 
 app.use('/api/users', userRouter);
@@ -103,7 +112,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 connectDB();
-// Gunakan server.listen, bukan app.listen
+
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`Server berjalan di http://0.0.0.0:${PORT}`);
 });

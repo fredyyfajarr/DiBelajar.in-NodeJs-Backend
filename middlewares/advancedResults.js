@@ -1,4 +1,5 @@
-import Category from '../models/Category.js'; // <-- 1. Pastikan model Category di-import
+import Category from '../models/Category.js';
+import escapeStringRegexp from 'escape-string-regexp'; // <-- Impor library baru
 
 export const advancedResults =
   (model, populate, searchableFields = []) =>
@@ -14,11 +15,9 @@ export const advancedResults =
 
       const removeFields = ['select', 'sort', 'page', 'limit', 'keyword'];
 
-      // --- PERUBAHAN LOGIKA UTAMA ADA DI SINI ---
-
       let categorySlug = reqQuery.category;
       if (categorySlug) {
-        delete reqQuery.category; // Hapus dari reqQuery agar tidak diproses sebagai string biasa
+        delete reqQuery.category;
       }
 
       removeFields.forEach((param) => delete reqQuery[param]);
@@ -31,17 +30,14 @@ export const advancedResults =
 
       let findQuery = JSON.parse(queryStr);
 
-      // Jika ada slug kategori, cari ID-nya dan tambahkan ke query
       if (categorySlug) {
         const category = await Category.findOne({ slug: categorySlug });
         if (category) {
           findQuery.category = category._id;
         } else {
-          // Jika slug kategori tidak ditemukan, buat query yang tidak akan mengembalikan hasil
           findQuery.category = null;
         }
       }
-      // --- AKHIR PERUBAHAN ---
 
       if (
         req.user &&
@@ -52,7 +48,9 @@ export const advancedResults =
       }
 
       if (req.query.keyword && searchableFields.length > 0) {
-        const keywordRegex = new RegExp(req.query.keyword, 'i');
+        // PERBAIKAN: Sanitasi input untuk mencegah ReDoS
+        const sanitizedKeyword = escapeStringRegexp(req.query.keyword);
+        const keywordRegex = new RegExp(sanitizedKeyword, 'i');
         findQuery['$or'] = searchableFields.map((field) => ({
           [field]: keywordRegex,
         }));
@@ -60,12 +58,14 @@ export const advancedResults =
 
       query = model.find(findQuery);
 
-      if (req.query.select) {
+      // PERBAIKAN: Tambahkan pengecekan tipe data
+      if (req.query.select && typeof req.query.select === 'string') {
         const fields = req.query.select.split(',').join(' ');
         query = query.select(fields);
       }
 
-      if (req.query.sort) {
+      // PERBAIKAN: Tambahkan pengecekan tipe data
+      if (req.query.sort && typeof req.query.sort === 'string') {
         const sortBy = req.query.sort.split(',').join(' ');
         query = query.sort(sortBy);
       } else {
