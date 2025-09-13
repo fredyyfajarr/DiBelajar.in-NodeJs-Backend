@@ -18,7 +18,7 @@ export const protect = async (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
-  console.log('Token:', token); // Debugging line to check the token value
+  // console.log('Token:', token); // Debugging line to check the token value
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

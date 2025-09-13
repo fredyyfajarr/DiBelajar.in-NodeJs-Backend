@@ -7,16 +7,12 @@ import {
 import { protect, authorize } from '../middlewares/authMiddleware.js';
 import { validate } from '../middlewares/validate.js';
 import { createCategorySchema } from '../validation/category.validation.js';
-import cacheMiddleware from '../middlewares/cacheMiddleware.js'; // <-- Impor cache
 
 const router = express.Router();
 
 router
   .route('/')
-  .get(
-    cacheMiddleware, // <-- CACHE DITERAPKAN DI SINI
-    getCategories
-  )
+  .get(getCategories)
   .post(
     protect,
     authorize('admin', 'instructor'),

@@ -30,7 +30,6 @@ import {
 } from '../validation/course.validation.js';
 import Course from '../models/Course.js';
 import { populateUser } from '../middlewares/populateUser.js';
-import cacheMiddleware from '../middlewares/cacheMiddleware.js'; // <-- Impor cache
 
 const router = express.Router();
 
@@ -38,7 +37,6 @@ router
   .route('/')
   .get(
     populateUser,
-    cacheMiddleware, // <-- CACHE DITERAPKAN DI SINI
     advancedResults(
       Course,
       ['instructorId', 'category'],
@@ -56,12 +54,7 @@ router
 
 router
   .route('/:idOrSlug')
-  .get(
-    populateUser,
-    cacheMiddleware, // <-- CACHE DITERAPKAN DI SINI
-    loadCourse,
-    getCourseAndMaterialsById
-  )
+  .get(populateUser, loadCourse, getCourseAndMaterialsById)
   .put(
     protect,
     authorize('admin', 'instructor'),
@@ -104,8 +97,7 @@ router.use(
   enrollmentCourseRouter
 );
 
-// Menerapkan cache ke seluruh rute di dalam reviewRouter
-router.use('/:courseIdOrSlug/reviews', cacheMiddleware, reviewRouter);
+router.use('/:courseIdOrSlug/reviews', reviewRouter);
 
 router.use('/:courseIdOrSlug/analytics', analyticsRouter);
 

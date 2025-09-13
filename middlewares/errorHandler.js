@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
     console.log(
       'JOI VALIDATION ERROR DETAILS:',
       JSON.stringify(err.details, null, 2)
-    );  
+    );
     return res.status(400).json({ error: err.details[0].message });
   }
 
