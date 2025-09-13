@@ -50,7 +50,7 @@ router
     authorizeSelfOrAdmin,
     validate(updateUserSchema),
     updateUser
-  )
+  ) 
   .delete(protect, loadUser, authorizeSelfOrAdmin, deleteUser);
 
 router.use(
