@@ -40,3 +40,14 @@ export const deleteCategoryById = async (categoryId) => {
   // Jika aman, hapus kategori
   return Category.findByIdAndDelete(categoryId);
 };
+
+export const updateCategory = async (categoryId, updateData) => {
+  const category = await Category.findByIdAndUpdate(categoryId, updateData, {
+    new: true,
+    runValidators: true,
+  });
+  if (!category) {
+    throw new Error('Category not found');
+  }
+  return category;
+};
