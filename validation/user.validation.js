@@ -1,68 +1,28 @@
 import Joi from 'joi';
 
-// Validation schema for register user data
+// Skema untuk registrasi tidak berubah
 export const registerUserSchema = Joi.object({
-  name: Joi.string().min(3).max(50).required().messages({
-    'string.base': 'Name must be a string',
-    'string.min': 'Name must be at least 3 characters',
-    'string.max': 'Name must be at most 50 characters',
-    'any.required': 'Name is required',
-  }),
-  email: Joi.string().email().required().messages({
-    'string.base': 'Email must be a string',
-    'string.email': 'Invalid email format',
-    'any.required': 'Email is required',
-  }),
-  password: Joi.string().min(8).required().messages({
-    'string.base': 'Password must be a string',
-    'string.min': 'Password must be at least 8 characters',
-    'any.required': 'Password is required',
-  }),
+  name: Joi.string().min(3).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).required(),
+  role: Joi.string().valid('student', 'instructor', 'admin'),
 });
 
-// Validation schema for user data
+// Skema untuk membuat pengguna (oleh admin)
 export const createUserSchema = Joi.object({
-  name: Joi.string().min(3).max(50).required().messages({
-    'string.base': 'Name must be a string',
-    'string.min': 'Name must be at least 3 characters',
-    'string.max': 'Name must be at most 50 characters',
-    'any.required': 'Name is required',
-  }),
-  email: Joi.string().email().required().messages({
-    'string.base': 'Email must be a string',
-    'string.email': 'Invalid email format',
-    'any.required': 'Email is required',
-  }),
-  password: Joi.string().min(8).required().messages({
-    'string.base': 'Password must be a string',
-    'string.min': 'Password must be at least 8 characters',
-    'any.required': 'Password is required',
-  }),
-  role: Joi.string()
-    .valid('admin', 'instructor', 'student')
-    .required()
-    .messages({
-      'any.only': 'Role not valid.',
-      'any.required': 'Role is required',
-    }),
+  name: Joi.string().min(3).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).required(),
+  role: Joi.string().valid('student', 'instructor', 'admin').required(),
 });
 
-// Validation schema for updaeting user data
+// Skema untuk memperbarui pengguna
 export const updateUserSchema = Joi.object({
-  name: Joi.string().min(3).max(50).optional().messages({
-    'string.min': 'Name must be at least 3 characters',
-    'string.max': 'Name must be at most 50 characters',
-  }),
-  email: Joi.string().email().optional().messages({
-    'string.email': 'Invalid email format',
-  }),
-  password: Joi.string().min(8).optional().messages({
-    'string.min': 'Password must be at least 8 characters',
-  }),
-  role: Joi.string()
-    .valid('admin', 'instructor', 'student')
-    .optional()
-    .messages({
-      'any.only': 'Role not valid.',
-    }),
-});
+  name: Joi.string().min(3).optional(),
+  email: Joi.string().email().optional(),
+  password: Joi.string().min(8).optional(),
+  role: Joi.string().valid('student', 'instructor', 'admin').optional(),
+
+  // --- TAMBAHKAN BARIS INI ---
+  bio: Joi.string().allow('').optional(),
+}).min(1); // Memastikan setidaknya ada satu field yang diisi
