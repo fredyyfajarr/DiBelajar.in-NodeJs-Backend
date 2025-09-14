@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
-
 import Enrollment from '../models/Enrollment.js';
 import AssignmentSubmission from '../models/AssignmentSubmission.js';
 import TestResult from '../models/TestResult.js';
@@ -42,6 +41,7 @@ export const createUser = async (newUserData) => {
     throw error;
   }
 };
+
 export const updateUser = async (userToUpdate, updateData) => {
   try {
     if (updateData.password) {
@@ -89,31 +89,21 @@ export const removeUser = async (userToDelete) => {
   }
 };
 
+// --- PERUBAHAN UTAMA DITERAPKAN DI SINI ---
 export const getUserPublicProfile = async (user) => {
-  // Jika bukan student, kembalikan data dasar
-  if (user.role !== 'student') {
-    return {
-      name: user.name,
-      slug: user.slug,
-      role: user.role,
-      createdAt: user.createdAt,
-    };
+  // 1. Cek apakah pengguna yang ditemukan adalah seorang instruktur.
+  if (!user || user.role !== 'instructor') {
+    // 2. Jika bukan, lempar error yang akan ditangkap oleh errorHandler Anda.
+    const error = new Error(`Instructor profile not found`);
+    error.statusCode = 404; // Set status code agar menjadi 404 Not Found
+    throw error;
   }
 
-  // Jika student, ambil data kursus yang telah diselesaikan
-  const completedCourses = await Enrollment.find({
-    userId: user._id,
-    completedAt: { $ne: null },
-  }).populate({
-    path: 'courseId',
-    select: 'title slug thumbnail',
-  });
+  // 3. Jika adalah instruktur, lanjutkan untuk mengambil kursus yang dia ajar.
+  const courses = await Course.find({ instructorId: user._id }).select(
+    'title slug thumbnail category'
+  );
 
-  return {
-    name: user.name,
-    slug: user.slug,
-    createdAt: user.createdAt,
-    bio: user.bio,
-    completedCourses: completedCourses.map((e) => e.courseId),
-  };
+  // 4. Kembalikan data profil instruktur beserta kursus-kursusnya.
+  return { user, courses };
 };

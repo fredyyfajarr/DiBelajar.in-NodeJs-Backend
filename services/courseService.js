@@ -27,7 +27,10 @@ export const findCourseById = async (idOrSlug) => {
   try {
     let course;
     // Definisikan cara populate yang lebih sederhana dan aman
-    const populateQuery = { path: 'instructorId', select: 'name' };
+    const populateQuery = {
+      path: 'instructorId',
+      select: 'name email slug _id',
+    };
 
     if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
       course = await Course.findById(idOrSlug).populate(populateQuery);
