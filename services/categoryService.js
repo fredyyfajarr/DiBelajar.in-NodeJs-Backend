@@ -1,4 +1,5 @@
 import Category from '../models/Category.js';
+import Course from '../models/Course.js';
 
 /**
  * Mengambil semua kategori dari database, diurutkan berdasarkan nama.
@@ -27,7 +28,15 @@ export const deleteCategoryById = async (categoryId) => {
   if (!category) {
     return null;
   }
-  // Di sini Anda bisa menambahkan logika untuk mengecek apakah ada kursus yang masih menggunakan kategori ini sebelum menghapus
-  await category.remove();
-  return category;
+
+  // Cek apakah ada kursus yang masih menggunakan kategori ini
+  const usedByCourse = await Course.exists({ category: categoryId });
+  if (usedByCourse) {
+    throw new Error(
+      'Kategori tidak bisa dihapus karena masih dipakai di kursus'
+    );
+  }
+
+  // Jika aman, hapus kategori
+  return Category.findByIdAndDelete(categoryId);
 };
