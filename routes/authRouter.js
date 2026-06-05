@@ -5,6 +5,7 @@ import {
   register,
   logout,
   forgotPassword,
+  me,
   resetPassword,
   refreshToken, // Impor fungsi baru
 } from '../controllers/AuthController.js';
@@ -19,14 +20,16 @@ const router = express.Router();
 
 router.route('/login').post(login);
 router.route('/register').post(validate(registerUserSchema), register);
+router.route('/me').get(protect, me);
 
-// Rute logout sekarang memerlukan proteksi untuk memastikan hanya user terotentikasi yang bisa logout
-router.route('/logout').post(protect, logout);
+router.route('/logout').post(logout);
 
 // Rute untuk mendapatkan access token baru
 router.route('/refresh-token').post(refreshToken);
 
-router.route('/forgot-password').post(validate(forgotPasswordSchema), forgotPassword);
+router
+  .route('/forgot-password')
+  .post(validate(forgotPasswordSchema), forgotPassword);
 router
   .route('/reset-password/:token')
   .post(validate(resetPasswordSchema), resetPassword);

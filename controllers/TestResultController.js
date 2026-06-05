@@ -1,4 +1,5 @@
 import * as testResultService from '../services/testResultService.js';
+import * as enrollmentService from '../services/enrollmentService.js';
 
 export const createTestResult = async (req, res, next) => {
   try {
@@ -12,6 +13,16 @@ export const createTestResult = async (req, res, next) => {
       score,
       answers
     );
+
+    await enrollmentService.updateUserProgress(
+      userId,
+      req.course._id,
+      material._id,
+      'test',
+      material.title,
+      req.course.slug
+    );
+
     res.status(201).json(newTestResult);
   } catch (error) {
     next(error);

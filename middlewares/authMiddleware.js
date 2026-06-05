@@ -14,23 +14,25 @@ export const protect = async (req, res, next) => {
   }
 
   if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+    const error = new Error('Not authorized, no token');
+    error.statusCode = 401;
+    return next(error);
   }
-  // console.log('Token:', token); // Debugging line to check the token value
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id).select('-password');
 
     if (!req.user) {
-      return res
-        .status(401)
-        .json({ message: 'User belonging to this token does not exist' });
+      const error = new Error('User belonging to this token does not exist');
+      error.statusCode = 401;
+      return next(error);
     }
     next();
   } catch (error) {
-    console.error('Error in authMiddleware:', error);
-    return res.status(401).json({ message: 'Not authorized, token failed' });
+    error.message = 'Not authorized, token failed';
+    error.statusCode = 401;
+    return next(error);
   }
 };
 
@@ -38,7 +40,9 @@ export const protect = async (req, res, next) => {
 export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Not authorized, access denied' });
+      const error = new Error('Not authorized, access denied');
+      error.statusCode = 403;
+      return next(error);
     }
     next();
   };
@@ -59,7 +63,9 @@ export const authorizeSelfOrAdmin = (req, res, next) => {
     return next();
   }
 
-  return res.status(403).json({ message: 'Not authorized, access denied' });
+  const error = new Error('Not authorized, access denied');
+  error.statusCode = 403;
+  return next(error);
 };
 
 // Middleware to make sure the user is enrolled in the course
@@ -73,7 +79,9 @@ export const authorizeEnrolled = async (req, res, next) => {
     if (!course) {
       // Seharusnya tidak pernah terjadi jika urutan middleware benar,
       // tapi ini sebagai pengaman.
-      return res.status(404).json({ message: 'Course not found in context' });
+      const error = new Error('Course not found in context');
+      error.statusCode = 404;
+      return next(error);
     }
 
     const enrollment = await Enrollment.findOne({
@@ -95,9 +103,9 @@ export const authorizeEnrolled = async (req, res, next) => {
     }
 
     // Jika tidak memenuhi semua kondisi di atas, tolak akses.
-    return res
-      .status(403)
-      .json({ message: 'You are not enrolled in this course' });
+    const error = new Error('You are not enrolled in this course');
+    error.statusCode = 403;
+    return next(error);
   } catch (error) {
     next(error);
   }

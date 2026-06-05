@@ -1,4 +1,5 @@
 import * as assignmentSubmissionService from '../services/assignmentSubmissionService.js';
+import * as enrollmentService from '../services/enrollmentService.js';
 
 export const createSubmission = async (req, res, next) => {
   try {
@@ -15,6 +16,15 @@ export const createSubmission = async (req, res, next) => {
       userId,
       material._id,
       submissionFileUrl // Kirim URL yang sudah jadi ke service
+    );
+
+    await enrollmentService.updateUserProgress(
+      userId,
+      req.course._id,
+      material._id,
+      'assignment',
+      material.title,
+      req.course.slug
     );
 
     res.status(201).json(newSubmission);

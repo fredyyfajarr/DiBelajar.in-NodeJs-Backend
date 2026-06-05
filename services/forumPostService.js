@@ -1,8 +1,7 @@
 import ForumPost from '../models/ForumPost.js';
 import sanitizeHtml from 'sanitize-html';
-import Enrollment from '../models/Enrollment.js'; // 1. Impor model Enrollment
-import Course from '../models/Course.js'; // Impor Course untuk menemukan courseId
 import Material from '../models/Material.js'; // Impor Material untuk menemukan courseId
+import * as enrollmentService from './enrollmentService.js';
 
 // Kita tidak lagi butuh buildQuery untuk findPostsByMaterialId karena populasinya kompleks
 
@@ -33,18 +32,16 @@ export const createForumPost = async (
       });
     }
 
-    // --- LOGIKA BARU: UPDATE PROGRESS OTOMATIS ---
-    // Cari courseId dari materialId
     const material = await Material.findById(materialId);
     if (material) {
-      const courseId = material.courseId;
-      // Cari enrollment dan update
-      await Enrollment.updateOne(
-        { userId, courseId, 'progress.materialId': materialId },
-        { $inc: { 'progress.$.forumPostCount': 1 } }
+      await enrollmentService.updateUserProgress(
+        userId,
+        material.courseId,
+        materialId,
+        'forum',
+        material.title
       );
     }
-    // --- AKHIR LOGIKA BARU ---
 
     newPost = await newPost.populate({ path: 'userId', select: 'name' });
 

@@ -3,6 +3,63 @@ import Material from '../models/Material.js';
 import { buildQuery } from '../utils/queryFeatures.js';
 import * as notificationService from './notificationService.js';
 
+const REQUIRED_FORUM_POSTS = 2;
+
+const findMaterialProgress = (enrollment, materialId) =>
+  enrollment.progress.find(
+    (progress) => progress.materialId.toString() === materialId.toString()
+  );
+
+const getOrCreateMaterialProgress = (enrollment, materialId) => {
+  let materialProgress = findMaterialProgress(enrollment, materialId);
+
+  if (!materialProgress) {
+    materialProgress = {
+      materialId,
+      hasCompletedTest: false,
+      hasSubmittedAssignment: false,
+      forumPostCount: 0,
+      isCompleted: false,
+    };
+    enrollment.progress.push(materialProgress);
+  }
+
+  return materialProgress;
+};
+
+const getMaterialRequirements = (material) => ({
+  hasTest: Array.isArray(material.testContent) && material.testContent.length > 0,
+  requiresAssignment: true,
+  requiredForumPosts: REQUIRED_FORUM_POSTS,
+});
+
+const evaluateMaterialCompletion = (materialProgress, material) => {
+  const requirements = getMaterialRequirements(material);
+
+  return (
+    (!requirements.hasTest || materialProgress.hasCompletedTest) &&
+    (!requirements.requiresAssignment || materialProgress.hasSubmittedAssignment) &&
+    (materialProgress.forumPostCount || 0) >= requirements.requiredForumPosts
+  );
+};
+
+const syncCourseCompletion = async (enrollment, courseId) => {
+  const materials = await Material.find({ courseId }).select('_id');
+  const materialIds = new Set(
+    materials.map((material) => material._id.toString())
+  );
+  const completedMaterials = enrollment.progress.filter(
+    (progress) =>
+      materialIds.has(progress.materialId.toString()) && progress.isCompleted
+  ).length;
+
+  if (materials.length > 0 && materials.length === completedMaterials) {
+    enrollment.completedAt = enrollment.completedAt || new Date();
+  } else {
+    enrollment.completedAt = null;
+  }
+};
+
 /**
  * Mengambil semua data pendaftaran dengan data user dan kursus terkait.
  */
@@ -93,7 +150,10 @@ export const updateUserProgress = async (
   materialTitle,
   courseSlug
 ) => {
-  const enrollment = await Enrollment.findOne({ userId, courseId });
+  const [enrollment, material] = await Promise.all([
+    Enrollment.findOne({ userId, courseId }),
+    Material.findById(materialId),
+  ]);
 
   if (!enrollment) {
     const error = new Error('Enrollment not found');
@@ -101,26 +161,42 @@ export const updateUserProgress = async (
     throw error;
   }
 
-  let materialProgress = enrollment.progress.find(
-    (p) => p.materialId.toString() === materialId.toString()
-  );
-
-  if (!materialProgress) {
-    materialProgress = { materialId };
-    enrollment.progress.push(materialProgress);
+  if (!material) {
+    const error = new Error('Materi tidak ditemukan');
+    error.statusCode = 404;
+    throw error;
   }
+
+  const materialProgress = getOrCreateMaterialProgress(enrollment, materialId);
+  const wasCompleted = materialProgress.isCompleted;
 
   if (step === 'test') materialProgress.hasCompletedTest = true;
   if (step === 'assignment') materialProgress.hasSubmittedAssignment = true;
+  if (step === 'forum') {
+    materialProgress.forumPostCount =
+      (materialProgress.forumPostCount || 0) + 1;
+  }
   if (step === 'completion') {
+    if (!evaluateMaterialCompletion(materialProgress, material)) {
+      const error = new Error(
+        'Selesaikan kuis, tugas, dan aktivitas forum sebelum menyelesaikan materi.'
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+
     materialProgress.isCompleted = true;
-    await notificationService.createNotification(
-      userId,
-      `Anda telah menyelesaikan materi: ${materialTitle}`,
-      `/learn/${courseSlug || courseId}`
-    );
+
+    if (!wasCompleted) {
+      await notificationService.createNotification(
+        userId,
+        `Anda telah menyelesaikan materi: ${materialTitle}`,
+        `/learn/${courseSlug || courseId}`
+      );
+    }
   }
 
+  await syncCourseCompletion(enrollment, courseId);
   await enrollment.save();
   return enrollment;
 };

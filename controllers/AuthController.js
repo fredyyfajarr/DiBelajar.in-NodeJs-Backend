@@ -1,14 +1,9 @@
 import * as authService from '../services/authService.js';
-
-// Fungsi helper untuk mengirim cookie
-const sendRefreshTokenCookie = (res, refreshToken) => {
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true, // Tidak bisa diakses oleh JavaScript sisi klien
-    secure: process.env.NODE_ENV === 'production', // Hanya kirim lewat HTTPS di produksi
-    sameSite: 'strict', // Proteksi CSRF
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
-  });
-};
+import {
+  clearRefreshTokenCookie,
+  sendRefreshTokenCookie,
+} from '../utils/authCookies.js';
+import { sendSuccess } from '../utils/apiResponse.js';
 
 export const login = async (req, res, next) => {
   try {
@@ -20,7 +15,7 @@ export const login = async (req, res, next) => {
 
     sendRefreshTokenCookie(res, refreshToken);
 
-    res.status(200).json({ success: true, token: accessToken, data: user });
+    sendSuccess(res, { token: accessToken, data: user });
   } catch (error) {
     next(error);
   }
@@ -34,8 +29,8 @@ export const register = async (req, res, next) => {
 
     sendRefreshTokenCookie(res, refreshToken);
 
-    res.status(201).json({
-      success: true,
+    sendSuccess(res, {
+      statusCode: 201,
       message: 'User Registered Successfully',
       token: accessToken,
       data: user,
@@ -50,11 +45,8 @@ export const logout = async (req, res, next) => {
     const { refreshToken } = req.cookies;
     await authService.logoutUser(refreshToken);
 
-    // Hapus cookie di sisi klien
-    res.clearCookie('refreshToken');
-    res
-      .status(200)
-      .json({ success: true, message: 'User logged out successfully' });
+    clearRefreshTokenCookie(res);
+    sendSuccess(res, { message: 'User logged out successfully' });
   } catch (error) {
     next(error);
   }
@@ -64,10 +56,14 @@ export const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
     const newAccessToken = await authService.refreshAccessToken(refreshToken);
-    res.status(200).json({ success: true, token: newAccessToken });
+    sendSuccess(res, { token: newAccessToken });
   } catch (error) {
     next(error); // <-- Disederhanakan
   }
+};
+
+export const me = (req, res) => {
+  sendSuccess(res, { data: req.user });
 };
 
 export const forgotPassword = async (req, res, next) => {
@@ -77,8 +73,7 @@ export const forgotPassword = async (req, res, next) => {
       req.protocol,
       req.get('host')
     );
-    res.status(200).json({
-      success: true,
+    sendSuccess(res, {
       message: 'If a user with that email exists, a reset link has been sent.',
     });
   } catch (error) {
@@ -95,7 +90,7 @@ export const resetPassword = async (req, res, next) => {
 
     sendRefreshTokenCookie(res, refreshToken);
 
-    res.status(200).json({ success: true, token: accessToken, data: user });
+    sendSuccess(res, { token: accessToken, data: user });
   } catch (error) {
     next(error); // <-- Disederhanakan
   }
