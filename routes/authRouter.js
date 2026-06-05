@@ -8,7 +8,11 @@ import {
   resetPassword,
   refreshToken, // Impor fungsi baru
 } from '../controllers/AuthController.js';
-import { registerUserSchema } from '../validation/user.validation.js';
+import {
+  forgotPasswordSchema,
+  registerUserSchema,
+  resetPasswordSchema,
+} from '../validation/user.validation.js';
 import { protect } from '../middlewares/authMiddleware.js'; // Impor protect
 
 const router = express.Router();
@@ -22,7 +26,9 @@ router.route('/logout').post(protect, logout);
 // Rute untuk mendapatkan access token baru
 router.route('/refresh-token').post(refreshToken);
 
-router.route('/forgot-password').post(forgotPassword);
-router.route('/reset-password/:token').post(resetPassword);
+router.route('/forgot-password').post(validate(forgotPasswordSchema), forgotPassword);
+router
+  .route('/reset-password/:token')
+  .post(validate(resetPasswordSchema), resetPassword);
 
 export default router;

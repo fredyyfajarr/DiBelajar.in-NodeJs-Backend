@@ -32,7 +32,9 @@ export const findSubmissionsByMaterialId = async (materialId, options = {}) => {
 
 export const findSubmissionsByUserId = async (userId, options = {}) => {
   try {
-    return await buildQuery(AssignmentSubmission, options, { userId });
+    const conditions = { userId };
+    const populateOptions = [{ path: 'materialId', select: 'title slug' }];
+    return await buildQuery(AssignmentSubmission, conditions, populateOptions);
   } catch (error) {
     console.error('Error finding submissions:', error);
     throw error;

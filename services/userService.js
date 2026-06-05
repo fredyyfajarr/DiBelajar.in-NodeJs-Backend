@@ -107,3 +107,23 @@ export const getUserPublicProfile = async (user) => {
   // 4. Kembalikan data profil instruktur beserta kursus-kursusnya.
   return { user, courses };
 };
+
+export const changeUserPassword = async (user, oldPassword, newPassword) => {
+  const userWithPassword = await User.findById(user._id).select('+password');
+  if (!userWithPassword) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const isMatch = await bcrypt.compare(oldPassword, userWithPassword.password);
+
+  if (!isMatch) {
+    const error = new Error('Password lama salah');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  userWithPassword.password = newPassword;
+  await userWithPassword.save();
+};

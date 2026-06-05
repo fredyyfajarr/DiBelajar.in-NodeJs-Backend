@@ -46,3 +46,15 @@ export const getUserProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+export const changePassword = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    await userService.changeUserPassword(req.user, oldPassword, newPassword);
+    res
+      .status(200)
+      .json({ success: true, message: 'Password berhasil diubah' });
+  } catch (error) {
+    next(error);
+  }
+};

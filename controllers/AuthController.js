@@ -88,11 +88,14 @@ export const forgotPassword = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
   try {
-    const token = await authService.resetPassword(
+    const { user, accessToken, refreshToken } = await authService.resetPassword(
       req.params.token,
       req.body.password
     );
-    res.status(200).json({ success: true, token });
+
+    sendRefreshTokenCookie(res, refreshToken);
+
+    res.status(200).json({ success: true, token: accessToken, data: user });
   } catch (error) {
     next(error); // <-- Disederhanakan
   }

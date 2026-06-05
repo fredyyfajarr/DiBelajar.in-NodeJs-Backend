@@ -15,7 +15,7 @@ const generateTokens = async (user) => {
   );
 
   const refreshToken = jwt.sign(
-    { id: user._id },
+    { id: user._id, role: user.role },
     process.env.REFRESH_TOKEN_SECRET, // Gunakan secret yang berbeda!
     { expiresIn: '7d' } // Umur panjang
   );
@@ -32,12 +32,16 @@ const generateTokens = async (user) => {
 export const loginUser = async (email, password) => {
   const user = await User.findOne({ email }).select('+password');
   if (!user) {
-    throw new Error('Email atau password salah.');
+    const error = new Error('Email atau password salah.');
+    error.statusCode = 401;
+    throw error;
   }
 
   const passwordIsMatch = await bcrypt.compare(password, user.password);
   if (!passwordIsMatch) {
-    throw new Error('Email atau password salah.');
+    const error = new Error('Email atau password salah.');
+    error.statusCode = 401;
+    throw error;
   }
 
   const tokens = await generateTokens(user);
@@ -86,10 +90,23 @@ export const refreshAccessToken = async (refreshToken) => {
   // Verifikasi refresh token
   try {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    let role = decoded.role;
+
+    if (!role) {
+      const user = await User.findById(decoded.id).select('role');
+      role = user?.role;
+    }
+
+    if (!role) {
+      await Token.findOneAndDelete({ token: refreshToken });
+      const error = new Error('Token tidak valid atau sesi telah berakhir.');
+      error.statusCode = 403;
+      throw error;
+    }
 
     // Buat access token baru
     const accessToken = jwt.sign(
-      { id: decoded.id, role: decoded.role },
+      { id: decoded.id, role },
       process.env.JWT_SECRET,
       { expiresIn: '15m' }
     );
@@ -115,8 +132,13 @@ export const processForgotPassword = async (email, protocol, host) => {
   const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false });
 
-  const resetURL = `${protocol}://${host}/api/auth/reset-password/${resetToken}`;
-  const message = `Anda menerima email ini karena Anda (atau orang lain) meminta reset password. Silakan buat request POST ke: \n\n ${resetURL}`;
+  const frontendUrl = (
+    process.env.FRONTEND_URL ||
+    process.env.CLIENT_URL ||
+    `${protocol}://${host}`
+  ).replace(/\/$/, '');
+  const resetURL = `${frontendUrl}/reset-password/${resetToken}`;
+  const message = `Anda menerima email ini karena Anda (atau orang lain) meminta reset password. Buka link berikut untuk membuat password baru:\n\n${resetURL}`;
 
   try {
     await sendEmail({
@@ -129,7 +151,9 @@ export const processForgotPassword = async (email, protocol, host) => {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
-    throw new Error('Email could not be sent.');
+    const emailError = new Error('Email could not be sent.');
+    emailError.statusCode = 500;
+    throw emailError;
   }
 };
 
@@ -152,11 +176,8 @@ export const resetPassword = async (token, newPassword) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-  const loginToken = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: '2h' }
-  );
+  const tokens = await generateTokens(user);
+  user.password = undefined;
 
-  return 'Bearer ' + loginToken;
+  return { user, ...tokens };
 };

@@ -26,10 +26,9 @@ export const createCourseSchema = Joi.object({
     }),
   instructorId: Joi.string()
     .custom(objectIdValidator, 'ObjectID Validation')
-    .required()
+    .optional()
     .messages({
       'any.invalid': 'InstrukturId harus ObjectId yang valid',
-      'any.required': 'Instruktur wajib dipilih',
     }),
 });
 

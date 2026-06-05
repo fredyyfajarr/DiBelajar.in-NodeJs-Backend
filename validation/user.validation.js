@@ -26,3 +26,24 @@ export const updateUserSchema = Joi.object({
   // --- TAMBAHKAN BARIS INI ---
   bio: Joi.string().allow('').optional(),
 }).min(1); // Memastikan setidaknya ada satu field yang diisi
+
+export const changePasswordSchema = Joi.object({
+  oldPassword: Joi.string().min(8).required(),
+  newPassword: Joi.string().min(8).required(),
+  confirmNewPassword: Joi.string()
+    .valid(Joi.ref('newPassword'))
+    .required()
+    .messages({ 'any.only': 'Password baru tidak cocok' }),
+});
+
+export const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+export const resetPasswordSchema = Joi.object({
+  password: Joi.string().min(8).required(),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref('password'))
+    .optional()
+    .messages({ 'any.only': 'Konfirmasi password tidak cocok' }),
+});

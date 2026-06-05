@@ -14,6 +14,7 @@ import {
   updateUser,
   deleteUser,
   getUserProfile,
+  changePassword,
 } from '../controllers/UserController.js';
 import { getSubmissionsByUserId } from '../controllers/AssignmentSubmissionController.js';
 import { getTestResultsByUserId } from '../controllers/TestResultController.js';
@@ -23,6 +24,7 @@ import enrollmentUserRouter from './enrollmentUserRouter.js';
 import {
   createUserSchema,
   updateUserSchema,
+  changePasswordSchema,
 } from '../validation/user.validation.js';
 
 import User from '../models/User.js';
@@ -39,6 +41,10 @@ router
   )
   .post(protect, authorize('admin'), validate(createUserSchema), createUser);
 
+router
+  .route('/change-password')
+  .put(protect, validate(changePasswordSchema), changePassword);
+
 router.route('/:idOrSlug/profile').get(loadUser, getUserProfile);
 
 router
@@ -50,7 +56,7 @@ router
     authorizeSelfOrAdmin,
     validate(updateUserSchema),
     updateUser
-  ) 
+  )
   .delete(protect, loadUser, authorizeSelfOrAdmin, deleteUser);
 
 router.use(

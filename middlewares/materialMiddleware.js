@@ -2,21 +2,13 @@ import { findMaterialById } from '../services/materialService.js';
 
 export const loadMaterial = async (req, res, next) => {
   try {
-    // --- LOG UNTUK DEBUGGING FINAL ---
-    console.log('\n--- DEBUGGING FINAL: Middleware loadMaterial ---');
-    console.log('Seluruh req.params yang diterima:', req.params);
-    // --- AKHIR LOG ---
-
     // Cek semua kemungkinan nama parameter
     const id =
       req.params.materialId ||
       req.params.materialIdOrSlug ||
       req.params.idOrSlug;
 
-    console.log('ID Materi yang berhasil diekstrak:', id); // Kita tambahkan log ini juga
-
     if (!req.course || !req.course._id) {
-      console.error('GAGAL di loadMaterial: req.course tidak ditemukan.');
       return res
         .status(500)
         .json({ error: 'Server error: Course context missing.' });

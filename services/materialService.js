@@ -1,11 +1,14 @@
 import Material from '../models/Material.js';
+import Enrollment from '../models/Enrollment.js';
+import AssignmentSubmission from '../models/AssignmentSubmission.js';
+import TestResult from '../models/TestResult.js';
+import ForumPost from '../models/ForumPost.js';
 import mongoose from 'mongoose';
 import { buildQuery } from '../utils/queryFeatures.js';
 
 export const findMaterialsByCourseId = async (courseId, options = {}) => {
   try {
     return await buildQuery(Material, { courseId: courseId }, ['courseId']);
-    return materials;
   } catch (error) {
     console.error('Error fetching materials by course ID or slug:', error);
     throw error;
@@ -88,4 +91,33 @@ export const removeMaterial = async (materialToDelete) => {
     console.error('Error removing material:', error);
     throw error;
   }
+};
+
+export const markMaterialAsCompleted = async (userId, materialId) => {
+  const material = await Material.findById(materialId);
+  if (!material) {
+    const error = new Error('Materi tidak ditemukan');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Cari enrollment berdasarkan courseId dari materi dan userId
+  const enrollment = await Enrollment.findOne({
+    userId,
+    courseId: material.courseId,
+  });
+
+  if (!enrollment) {
+    const error = new Error('Anda belum terdaftar di kursus ini');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  // Tambahkan materialId ke array completedMaterials jika belum ada
+  if (!enrollment.completedMaterials.includes(materialId)) {
+    enrollment.completedMaterials.push(materialId);
+    await enrollment.save();
+  }
+
+  return enrollment;
 };

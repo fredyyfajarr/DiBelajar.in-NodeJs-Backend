@@ -29,7 +29,9 @@ export const findTestResultsByMaterialId = async (materialId, options = {}) => {
 
 export const findTestResultsByUserId = async (userId, options = {}) => {
   try {
-    return await buildQuery(TestResult, options, { userId });
+    const conditions = { userId };
+    const populateOptions = [{ path: 'materialId', select: 'title slug' }];
+    return await buildQuery(TestResult, conditions, populateOptions);
   } catch (error) {
     console.error('Error finding test results by user ID:', error);
     throw error;

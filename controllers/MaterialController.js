@@ -1,5 +1,4 @@
 import * as materialService from '../services/materialService.js';
-import Material from '../models/Material.js';
 
 export const getMaterialsByCourseId = async (req, res, next) => {
   try {
@@ -58,6 +57,22 @@ export const deleteMaterial = async (req, res, next) => {
     res.json({
       message: 'Material deleted successfully',
       data: deletedMaterial,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const completeMaterial = async (req, res, next) => {
+  try {
+    const updatedEnrollment = await materialService.markMaterialAsCompleted(
+      req.user.id,
+      req.params.id
+    );
+    res.status(200).json({
+      success: true,
+      message: 'Materi ditandai selesai',
+      data: updatedEnrollment,
     });
   } catch (error) {
     next(error);

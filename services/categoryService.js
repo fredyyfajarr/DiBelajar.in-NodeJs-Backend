@@ -32,9 +32,11 @@ export const deleteCategoryById = async (categoryId) => {
   // Cek apakah ada kursus yang masih menggunakan kategori ini
   const usedByCourse = await Course.exists({ category: categoryId });
   if (usedByCourse) {
-    throw new Error(
+    const error = new Error(
       'Kategori tidak bisa dihapus karena masih dipakai di kursus'
     );
+    error.statusCode = 409;
+    throw error;
   }
 
   // Jika aman, hapus kategori
@@ -47,7 +49,9 @@ export const updateCategory = async (categoryId, updateData) => {
     runValidators: true,
   });
   if (!category) {
-    throw new Error('Category not found');
+    const error = new Error('Category not found');
+    error.statusCode = 404;
+    throw error;
   }
   return category;
 };
