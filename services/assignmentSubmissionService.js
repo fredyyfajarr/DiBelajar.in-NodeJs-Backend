@@ -22,7 +22,10 @@ export const createSubmission = async (
 export const findSubmissionsByMaterialId = async (materialId, options = {}) => {
   try {
     const conditions = { materialId };
-    const populateOptions = [{ path: 'userId', select: 'name' }]; // <-- Tambahkan ini
+    const populateOptions = [
+      { path: 'userId', select: 'name email' },
+      { path: 'gradedBy', select: 'name' },
+    ];
     return await buildQuery(AssignmentSubmission, conditions, populateOptions);
   } catch (error) {
     console.error('Error finding submissions:', error);
@@ -39,4 +42,33 @@ export const findSubmissionsByUserId = async (userId, options = {}) => {
     console.error('Error finding submissions:', error);
     throw error;
   }
+};
+
+export const gradeSubmission = async (
+  submissionId,
+  materialId,
+  { grade, feedback = '' },
+  gradedBy
+) => {
+  const submission = await AssignmentSubmission.findOneAndUpdate(
+    { _id: submissionId, materialId },
+    {
+      grade,
+      feedback,
+      gradedBy,
+      gradedAt: new Date(),
+      status: 'graded',
+    },
+    { new: true, runValidators: true }
+  )
+    .populate({ path: 'userId', select: 'name email' })
+    .populate({ path: 'gradedBy', select: 'name' });
+
+  if (!submission) {
+    const error = new Error('Submission not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return submission;
 };

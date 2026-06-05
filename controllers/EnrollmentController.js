@@ -2,6 +2,7 @@
 
 import * as enrollmentService from '../services/enrollmentService.js';
 import * as notificationService from '../services/notificationService.js';
+import { sendSuccess } from '../utils/apiResponse.js';
 
 export const enrollInCourse = async (req, res, next) => {
   try {
@@ -20,7 +21,7 @@ export const enrollInCourse = async (req, res, next) => {
       `/instructor/courses/${req.course.slug}/enrollments`
     );
 
-    res.status(201).json(newEnrollment);
+    sendSuccess(res, { data: newEnrollment, statusCode: 201 });
   } catch (error) {
     next(error); // <-- Langsung serahkan ke error handler
   }
@@ -36,11 +37,7 @@ export const findEnrollmentByUserId = async (req, res, next) => {
       req.profile._id,
       req.query
     );
-    res.status(200).json({
-      success: true,
-      count: enrollments.length,
-      data: enrollments,
-    });
+    sendSuccess(res, { data: enrollments, meta: { count: enrollments.length } });
   } catch (error) {
     next(error);
   }
@@ -52,11 +49,7 @@ export const findEnrollmentByCourseId = async (req, res, next) => {
       req.course._id,
       req.query
     );
-    res.status(200).json({
-      success: true,
-      count: enrollments.length,
-      data: enrollments,
-    });
+    sendSuccess(res, { data: enrollments, meta: { count: enrollments.length } });
   } catch (error) {
     next(error);
   }
@@ -68,9 +61,9 @@ export const removeEnrollment = async (req, res, next) => {
       req.profile._id,
       req.course._id
     );
-    res.status(200).json({
-      message: 'Enrollment deleted successfully',
+    sendSuccess(res, {
       data: deletedEnrollment,
+      message: 'Enrollment deleted successfully',
     });
   } catch (error) {
     next(error); // <-- Langsung serahkan ke error handler
@@ -87,7 +80,7 @@ export const updateUserProgress = async (req, res, next) => {
       req.material.title,
       req.course.slug
     );
-    res.status(200).json({ success: true, data: enrollment });
+    sendSuccess(res, { data: enrollment });
   } catch (error) {
     next(error); // <-- Langsung serahkan ke error handler
   }
@@ -99,8 +92,7 @@ export const getCertificateData = async (req, res, next) => {
       req.user._id,
       req.course._id
     );
-    res.status(200).json({
-      success: true,
+    sendSuccess(res, {
       data: {
         studentName: req.user.name,
         courseTitle: req.course.title,
@@ -118,10 +110,7 @@ export const getStudentProgressInCourse = async (req, res, next) => {
       req.profile._id,
       req.course._id
     );
-    res.status(200).json({
-      success: true,
-      data: progressData,
-    });
+    sendSuccess(res, { data: progressData });
   } catch (error) {
     next(error); // <-- Langsung serahkan ke error handler
   }

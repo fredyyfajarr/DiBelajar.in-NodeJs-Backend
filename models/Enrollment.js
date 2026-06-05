@@ -45,8 +45,7 @@ const enrollmentSchema = new mongoose.Schema({
   },
 });
 
-// Membuat compound index untuk mempercepat query berdasarkan userId dan courseId
-enrollmentSchema.index({ userId: 1, courseId: 1 }); // <-- DITAMBAHKAN
+enrollmentSchema.index({ userId: 1, courseId: 1 }, { unique: true });
 
 const Enrollment = mongoose.model('Enrollment', enrollmentSchema);
 

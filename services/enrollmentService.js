@@ -27,13 +27,13 @@ const getOrCreateMaterialProgress = (enrollment, materialId) => {
   return materialProgress;
 };
 
-const getMaterialRequirements = (material) => ({
+export const getMaterialRequirements = (material) => ({
   hasTest: Array.isArray(material.testContent) && material.testContent.length > 0,
   requiresAssignment: true,
   requiredForumPosts: REQUIRED_FORUM_POSTS,
 });
 
-const evaluateMaterialCompletion = (materialProgress, material) => {
+export const evaluateMaterialCompletion = (materialProgress, material) => {
   const requirements = getMaterialRequirements(material);
 
   return (
@@ -115,11 +115,20 @@ export const createEnrollment = async (userId, courseId) => {
 
   if (existingEnrollment) {
     const error = new Error('User already enrolled in this course');
-    error.statusCode = 400; // Bad Request
+    error.statusCode = 409;
     throw error;
   }
 
-  return Enrollment.create({ userId, courseId });
+  try {
+    return await Enrollment.create({ userId, courseId });
+  } catch (error) {
+    if (error.code === 11000) {
+      const duplicateError = new Error('User already enrolled in this course');
+      duplicateError.statusCode = 409;
+      throw duplicateError;
+    }
+    throw error;
+  }
 };
 
 /**

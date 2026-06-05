@@ -14,6 +14,7 @@ import {
 import {
   createSubmission,
   getSubmissionsByMaterialId,
+  gradeSubmission,
 } from '../controllers/AssignmentSubmissionController.js';
 import {
   createTestResult,
@@ -30,6 +31,7 @@ import {
 } from '../validation/material.validation.js';
 import { createTestResultSchema } from '../validation/testResult.validation.js';
 import { createForumPostSchema } from '../validation/forumPost.validation.js';
+import { gradeAssignmentSchema } from '../validation/assignment.validation.js';
 
 const router = express.Router({ mergeParams: true });
 
@@ -76,6 +78,16 @@ router
     uploadAssignment.single('submissionFile'),
     loadMaterial,
     createSubmission
+  );
+
+router
+  .route('/:materialIdOrSlug/assignments/:submissionId/grade')
+  .patch(
+    authorize('admin', 'instructor'),
+    authorizeCourseOwner,
+    loadMaterial,
+    validate(gradeAssignmentSchema),
+    gradeSubmission
   );
 
 // GET & POST test results
