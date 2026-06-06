@@ -22,7 +22,25 @@ export const getAllMaterials = async (req, res, next) => {
 };
 
 export const getMaterialById = async (req, res, next) => {
-  res.json(req.material);
+  try {
+    if (req.material) {
+      return res.json(req.material);
+    }
+
+    const material = await materialService.findMaterialByIdOrSlug(
+      req.params.idOrSlug
+    );
+
+    if (!material) {
+      const error = new Error('Material not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return res.json({ success: true, data: material });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const createMaterial = async (req, res, next) => {
@@ -57,22 +75,6 @@ export const deleteMaterial = async (req, res, next) => {
     res.json({
       message: 'Material deleted successfully',
       data: deletedMaterial,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const completeMaterial = async (req, res, next) => {
-  try {
-    const updatedEnrollment = await materialService.markMaterialAsCompleted(
-      req.user.id,
-      req.params.id
-    );
-    res.status(200).json({
-      success: true,
-      message: 'Materi ditandai selesai',
-      data: updatedEnrollment,
     });
   } catch (error) {
     next(error);

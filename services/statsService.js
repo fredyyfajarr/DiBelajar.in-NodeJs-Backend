@@ -3,6 +3,7 @@ import Course from '../models/Course.js';
 import Enrollment from '../models/Enrollment.js';
 import TestResult from '../models/TestResult.js';
 import Material from '../models/Material.js';
+import AssignmentSubmission from '../models/AssignmentSubmission.js';
 
 /**
  * Mengambil statistik utama untuk dasbor admin.
@@ -14,22 +15,32 @@ export const getDashboardStats = async () => {
     totalUsers,
     totalCourses,
     totalEnrollments,
+    pendingSubmissions,
     recentUsers,
     recentCourses,
+    recentEnrollments,
   ] = await Promise.all([
     User.countDocuments(),
     Course.countDocuments(),
     Enrollment.countDocuments(),
+    AssignmentSubmission.countDocuments({ status: 'submitted' }),
     User.find().sort({ createdAt: -1 }).limit(5).select('name email'),
-    Course.find().sort({ createdAt: -1 }).limit(5).select('title'),
+    Course.find().sort({ createdAt: -1 }).limit(5).select('title slug'),
+    Enrollment.find()
+      .sort({ _id: -1 })
+      .limit(5)
+      .populate('userId', 'name email')
+      .populate('courseId', 'title slug'),
   ]);
 
   return {
     totalUsers,
     totalCourses,
     totalEnrollments,
+    pendingSubmissions,
     recentUsers,
     recentCourses,
+    recentEnrollments,
   };
 };
 

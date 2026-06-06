@@ -1,5 +1,6 @@
 import * as assignmentSubmissionService from '../services/assignmentSubmissionService.js';
 import * as enrollmentService from '../services/enrollmentService.js';
+import * as notificationService from '../services/notificationService.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 
 export const createSubmission = async (req, res, next) => {
@@ -69,6 +70,12 @@ export const gradeSubmission = async (req, res, next) => {
       req.material._id,
       req.body,
       req.user._id
+    );
+
+    await notificationService.createNotification(
+      submission.userId._id,
+      `Tugas Anda pada materi "${req.material.title}" sudah dinilai.`,
+      `/student-activity`
     );
 
     sendSuccess(res, {

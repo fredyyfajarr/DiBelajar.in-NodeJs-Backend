@@ -86,7 +86,31 @@ export const findEnrollmentByUserId = async (userId, options = {}) => {
         select: 'title description slug thumbnail',
       },
     ];
-    return await buildQuery(Enrollment, { userId: userId }, populateOptions);
+    const enrollments = await buildQuery(
+      Enrollment,
+      { userId: userId },
+      populateOptions
+    );
+    const courseIds = enrollments
+      .map((enrollment) => enrollment.courseId?._id)
+      .filter(Boolean);
+    const materialCounts = await Material.aggregate([
+      { $match: { courseId: { $in: courseIds } } },
+      { $group: { _id: '$courseId', count: { $sum: 1 } } },
+    ]);
+    const materialCountByCourse = new Map(
+      materialCounts.map((item) => [item._id.toString(), item.count])
+    );
+
+    return enrollments.map((enrollment) => {
+      const enrollmentObject = enrollment.toObject();
+      const courseId = enrollmentObject.courseId?._id?.toString();
+      if (enrollmentObject.courseId) {
+        enrollmentObject.courseId.materialCount =
+          materialCountByCourse.get(courseId) || 0;
+      }
+      return enrollmentObject;
+    });
   } catch (error) {
     console.error('Error fetching enrollments by user ID:', error);
     throw error;
