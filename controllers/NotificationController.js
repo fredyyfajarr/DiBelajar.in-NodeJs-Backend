@@ -22,7 +22,10 @@ export const markAsRead = async (req, res, next) => {
   try {
     const { notificationId } = req.params;
     const updatedNotification =
-      await notificationService.markNotificationAsRead(notificationId);
+      await notificationService.markNotificationAsRead(
+        notificationId,
+        req.user._id
+      );
     if (!updatedNotification) {
       return res.status(404).json({ error: 'Notification not found' });
     }

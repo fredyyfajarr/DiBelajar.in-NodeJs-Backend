@@ -12,6 +12,7 @@ import { uploadThumbnail } from '../utils/multerConfig.js';
 import {
   getAllCourses,
   getCourseAndMaterialsById,
+  getMyCourses,
   createCourse,
   updateCourse,
   deleteCourse,
@@ -51,6 +52,10 @@ router
     validate(createCourseSchema),
     createCourse
   );
+
+router
+  .route('/my-courses')
+  .get(protect, authorize('admin', 'instructor'), getMyCourses);
 
 router
   .route('/:idOrSlug')

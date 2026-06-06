@@ -3,10 +3,14 @@ import {
   getCategories,
   createCategory,
   deleteCategory,
+  updateCategory,
 } from '../controllers/CategoryController.js';
 import { protect, authorize } from '../middlewares/authMiddleware.js';
 import { validate } from '../middlewares/validate.js';
-import { createCategorySchema } from '../validation/category.validation.js';
+import {
+  createCategorySchema,
+  updateCategorySchema,
+} from '../validation/category.validation.js';
 
 const router = express.Router();
 
@@ -20,6 +24,9 @@ router
     createCategory
   );
 
-router.route('/:id').delete(protect, authorize('admin'), deleteCategory);
+router
+  .route('/:id')
+  .put(protect, authorize('admin'), validate(updateCategorySchema), updateCategory)
+  .delete(protect, authorize('admin'), deleteCategory);
 
 export default router;

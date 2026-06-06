@@ -10,7 +10,8 @@ export const createNotification = async (userId, message, link) => {
 };
 
 export const getNotificationsByUserId = async (userId, params) => {
-  const { page, limit } = params;
+  const page = Math.max(Number(params?.page) || 1, 1);
+  const limit = Math.min(Math.max(Number(params?.limit) || 10, 1), 50);
   const skip = (page - 1) * limit;
 
   const notifications = await Notification.find({ userId })
@@ -21,9 +22,9 @@ export const getNotificationsByUserId = async (userId, params) => {
   return { notifications, total };
 };
 
-export const markNotificationAsRead = async (notificationId) => {
-  return await Notification.findByIdAndUpdate(
-    notificationId,
+export const markNotificationAsRead = async (notificationId, userId) => {
+  return await Notification.findOneAndUpdate(
+    { _id: notificationId, userId },
     { isRead: true },
     { new: true }
   );
