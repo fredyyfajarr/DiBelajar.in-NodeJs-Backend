@@ -79,7 +79,7 @@ router
 
 router
   .route('/:idOrSlug/enrollments')
-  .post(protect, loadCourse, enrollInCourse);
+  .post(protect, authorize('student'), loadCourse, enrollInCourse);
 
 router
   .route('/:idOrSlug/certificate-data')

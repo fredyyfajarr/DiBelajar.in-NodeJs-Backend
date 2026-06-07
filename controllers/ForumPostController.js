@@ -11,7 +11,8 @@ export const createForumPost = async (req, res, next) => {
       userId,
       material._id,
       text,
-      parentPostId // Teruskan 'parentPostId' ke service
+      parentPostId, // Teruskan 'parentPostId' ke service
+      req.user.role
     );
     res.status(201).json(newPost);
   } catch (error) {

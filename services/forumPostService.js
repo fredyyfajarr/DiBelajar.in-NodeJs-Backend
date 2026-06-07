@@ -9,7 +9,8 @@ export const createForumPost = async (
   userId,
   materialId,
   text,
-  parentPostId = null
+  parentPostId = null,
+  userRole = 'student'
 ) => {
   try {
     const cleanText = sanitizeHtml(text, {
@@ -33,7 +34,7 @@ export const createForumPost = async (
     }
 
     const material = await Material.findById(materialId);
-    if (material) {
+    if (material && userRole === 'student') {
       await enrollmentService.updateUserProgress(
         userId,
         material.courseId,
