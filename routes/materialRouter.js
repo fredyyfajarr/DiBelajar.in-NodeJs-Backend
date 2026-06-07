@@ -1,5 +1,5 @@
 import express from 'express';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, authorize } from '../middlewares/authMiddleware.js';
 import { advancedResults } from '../middlewares/advancedResults.js';
 import {
   getAllMaterials,
@@ -10,10 +10,18 @@ import Material from '../models/Material.js';
 const router = express.Router();
 
 // Rute untuk GET semua materi
-// router.get('/', protect, getAllMaterials);
-router.route('/').get(protect, advancedResults(Material), getAllMaterials);
+router
+  .route('/')
+  .get(
+    protect,
+    authorize('admin', 'instructor'),
+    advancedResults(Material),
+    getAllMaterials
+  );
 
 // Rute untuk GET materi berdasarkan ID
-router.route('/:idOrSlug').get(protect, getMaterialById);
+router
+  .route('/:idOrSlug')
+  .get(protect, authorize('admin', 'instructor'), getMaterialById);
 
 export default router;

@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.route('/').get(
   protect,
-  authorize('admin', 'instructor'),
+  authorize('admin'),
   // PERBAIKAN: Tambahkan argumen kedua untuk populate
   advancedResults(Enrollment, [
     { path: 'userId', select: 'name email' },
