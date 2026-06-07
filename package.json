@@ -35,6 +35,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "seed": "node scripts/seed.js",
     "test": "node --test",
     "prod:start": "pm2 start app.js -i max --name dibelajarin-backend",
     "prod:reload": "pm2 reload dibelajarin-backend",
