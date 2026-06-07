@@ -230,6 +230,7 @@ export const updateUserProgress = async (
   }
 
   await syncCourseCompletion(enrollment, courseId);
+  enrollment.markModified('progress');
   await enrollment.save();
   return enrollment;
 };

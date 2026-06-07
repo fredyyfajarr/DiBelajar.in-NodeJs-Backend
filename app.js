@@ -57,13 +57,18 @@ app.use(compression());
 // PERBAIKAN: Pindahkan CORS ke atas, sebelum HPP dan CSURF
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
   'https://di-belajar-in.vercel.app',
   'http://192.168.1.100:5173',
 ];
 
+const isLocalDevOrigin = (origin) =>
+  process.env.NODE_ENV !== 'production' &&
+  /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin || allowedOrigins.includes(origin) || isLocalDevOrigin(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
