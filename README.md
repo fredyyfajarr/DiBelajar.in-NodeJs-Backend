@@ -1,4 +1,4 @@
-﻿# DiBelajar.in Backend
+# DiBelajar.in Backend
 
 The backend service for the DiBelajar.in Learning Management System (LMS).
 
@@ -17,4 +17,5 @@ The backend service for the DiBelajar.in Learning Management System (LMS).
 - Cloudinary
 - JWT
 
-Copyright build dari nama saya Fredy Fajar Adi Putra
+Copyright &copy; 2026 Fredy Fajar Adi Putra. All Rights Reserved.
+
